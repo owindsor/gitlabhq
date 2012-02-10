@@ -75,8 +75,10 @@ module Gitlabhq
       name_writers = project.repository_writers
 
       repo.clean_permissions
-      repo.add_permission("R", "", name_readers) unless name_readers.blank?
-      repo.add_permission("RW+", "", name_writers) unless name_writers.blank?
+        repo.add_permission("R", "", name_readers) unless name_readers.blank?
+        repo.add_permission("RW+", "master", name_writers) unless name_writers.blank?
+        repo.add_permission("RW+", "staging", name_writers) unless name_writers.blank?
+        repo.add_permission("RW+", "production", "@integrators")
       conf.add_repo(repo, true)
 
       ga_repo.save
@@ -102,7 +104,9 @@ module Gitlabhq
 
         repo.clean_permissions
         repo.add_permission("R", "", name_readers) unless name_readers.blank?
-        repo.add_permission("RW+", "", name_writers) unless name_writers.blank?
+        repo.add_permission("RW+", "master", name_writers) unless name_writers.blank?
+        repo.add_permission("RW+", "staging", name_writers) unless name_writers.blank?
+        repo.add_permission("RW+", "production", "@integrators")
         conf.add_repo(repo, true)
       end
 
