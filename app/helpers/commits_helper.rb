@@ -53,11 +53,13 @@ module CommitsHelper
 
     lines_arr = diff_arr
     lines_arr.each do |line|
+      next if line.match(/^\-\-\- \/dev\/null/)
+      next if line.match(/^\+\+\+ \/dev\/null/)
+      next if line.match(/^\-\-\- a/)
+      next if line.match(/^\+\+\+ b/)
+
       full_line = html_escape(line.gsub(/\n/, ''))
 
-      next if line.match(/^--- \/dev\/null/)
-      next if line.match(/^--- a/)
-      next if line.match(/^\+\+\+ b/)
       if line.match(/^@@ -/)
         next if line_old == 1 && line_new == 1
         type = "match"
@@ -65,7 +67,7 @@ module CommitsHelper
         line_old = line.match(/\-[0-9]*/)[0].to_i.abs rescue 0
         line_new = line.match(/\+[0-9]*/)[0].to_i.abs rescue 0
 
-        yield(nil, type, nil, nil, nil)
+        yield(line, type, nil, nil, nil)
         next
       else
         type = diff_line_class(line)
