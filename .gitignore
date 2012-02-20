@@ -11,9 +11,7 @@ public/uploads/
 .rvmrc
 .directory
 nohup.out
-<<<<<<< HEAD
-*sublime*
-=======
 Vagrantfile
 .vagrant
->>>>>>> upstream/master
+config/gitlab.yml
+config/database.yml
