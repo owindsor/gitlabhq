@@ -1,0 +1,478 @@
+- bash_lexer = Pygments::Lexer[:bash]
+%h3 Git Cheat Sheet
+
+%h4 Setup
+
+%b git clone <repo>
+  % pclone the repository specified by <repo>; this is similar to "checkout" in some other version control systems such as Subversion and CVS
+
+
+%h4 Configuration
+
+%b git config -e [--global]
+  %p edit the .git/config [or ~/.gitconfig] file in your $EDITOR
+     %pre
+      .bash
+        git config --global user.name 'John Doe'
+        git config --global user.email johndoe@example.com
+
+
+%b git config branch.autosetupmerge true
+  %p tells git-branch and git-checkout to setup new branches so that git-pull(1) will appropriately merge from that remote branch.  Recommended.  Without this, you will have to add --track to your branch command or manually merge remote tracking branches with "fetch" and then "merge".
+
+%b git config core.autocrlf true
+  %p This setting tells git to convert the newlines to the system's standard when checking out files, and to LF newlines when committing in
+
+%b git config --list
+  %p To view all options
+
+%b git config apply.whitespace nowarn
+  %p To ignore whitespace
+
+
+%p N.B -  You can add "--global" after "git config" to any of these commands to make it apply to all git repos (writes to ~/.gitconfig).
+
+
+
+%h4 Info
+
+%b git reflog
+  %p Use this to recover from *major* mess ups! It's basically a log of the last few actions and you might have luck and find old commits that have been lost by doing a complex merge.
+
+%b git diff
+  %p show a diff of the changes made since your last commit to diff one file: "git diff -- <filename>". To show a diff between staging area and HEAD: `git diff --cached`
+
+%b git status
+  % pshow files added to the staging area, files with changes, and untracked files
+
+%b git log
+  %p show recent commits, most recent on top. Useful options:
+    %ul
+      %li --color       with color
+      %li --graph       with an ASCII-art commit graph on the left
+      %li --decorate    with branch and tag names on appropriate commits
+      %li --stat with stats (files changed, insertions, and deletions)
+      %li -p            with full diffs
+      %li --author=foo  only by a certain author
+      %li --after="MMM DD YYYY" ex. ("Jun 20 2008") only commits after a certain date
+      %li --before="MMM DD YYYY" only commits that occur before a certain date
+      %li --merge       only the commits involved in the current merge conflicts
+
+%b git log <ref>..<ref>
+  %p show commits between the specified range. Useful for seeing changes from remotes:
+    %pre
+     .bash
+        git log HEAD..origin/master # after git remote update
+
+%b git show <rev>
+  %p show the changeset (diff) of a commit specified by <rev>, which can be any SHA1 commit ID, branch name, or tag (shows the last commit (HEAD) by default)
+
+
+%b git show --name-only <rev>
+  %p show only the names of the files that changed, no diff information.
+
+%b git blame <file>
+  %p show who authored each line in <file>
+
+%b git blame <file> <rev>
+  %p show who authored each line in <file> as of <rev> (allows blame to go back in time)
+
+%b git gui blame
+  %p really nice GUI interface to git blame
+
+%b git whatchanged <file>
+  %p show only the commits which affected <file> listing the most recent first
+:plain 
+  E.g. view all changes made to a file on a branch:
+    git whatchanged <branch> <file>  | grep commit | \
+         colrm 1 7 | xargs -I % git show % <file>
+  this could be combined with git remote show <remote> to find all changes on
+  all branches to a particular file.
+
+%b git diff <commit> head path/to/fubar
+  %p show the diff between a file on the current branch and potentially another branch
+
+%b git diff --cached [<file>]
+  %p shows diff for staged (git-add'ed) files (which includes uncommitted git cherry-pick'ed files)
+
+%b git ls-files
+  % list all files in the index and under version control.
+
+%b git ls-remote <remote> [HEAD]
+  %p show the current version on the remote repo. This can be used to check whether a local is required by comparing the local head revision.
+
+%h4 Adding / Deleting
+
+%b git add <file1> <file2> ...
+  %p add <file1>, <file2>, etc... to the project
+
+%b git add <dir>
+  %p add all files under directory <dir> to the project, including subdirectories
+
+%b git add .
+  %p add all files under the current directory to the project
+  %p *WARNING*: including untracked files.
+
+%b git rm <file1> <file2> ...
+  %p remove <file1>, <file2>, etc... from the project
+
+%b git rm $(git ls-files --deleted)
+  %p remove all deleted files from the project
+
+%b git rm --cached <file1> <file2> ...
+  %p commits absence of <file1>, <file2>, etc... from the project
+
+%h4 Ignoring
+
+
+%b Option 1:
+
+  %p Edit $GIT_DIR/info/exclude. See Environment Variables below for explanation on $GIT_DIR.
+
+%b Option 2:
+
+%p Add a file .gitignore to the root of your project. This file will be checked in. Either way you need to add patterns to exclude to these files.
+
+%h4 Staging
+
+
+%b git add <file1> <file2> ...
+%b git stage <file1> <file2> ...
+  %p add changes in <file1>, <file2> ... to the staging area (to be included in the next commit
+
+%b git add -p
+%b git stage --patch
+  %p interactively walk through the current changes (hunks) in the working tree, and decide which changes to add to the staging area.
+
+%b git add -i
+%b git stage --interactive
+  %p interactively add files/changes to the staging area. For a simpler mode (no menu), try `git add --patch` (above)
+
+%h4 Unstaging
+
+%b git reset HEAD <file1> <file2> ...
+  %p remove the specified files from the next commit
+
+
+%b Committing
+
+%b git commit <file1> <file2> ... [-m <msg>]
+  %p commit <file1>, <file2>, etc..., optionally using commit message <msg>, otherwise opening your editor to let you type a commit message
+
+%b git commit -a
+  %p commit all files changed since your last commit (does not include new (untracked) files)
+
+%b git commit -v
+  %p commit verbosely, i.e. includes the diff of the contents being committed in the commit message screen
+
+%b git commit --amend
+  %p edit the commit message of the most recent commit
+
+%b git commit --amend <file1> <file2> ...
+  %p redo previous commit, including changes made to <file1>, <file2>, etc...
+
+
+%h4 Branching
+
+%b git branch
+  %p list all local branches
+
+%b git branch -r
+  %p list all remote branches
+
+%b git branch -a
+  %p list all local and remote branches
+
+%b git branch <branch>
+  %p create a new branch named <branch>, referencing the same point in history as the current branch
+
+%b git branch <branch> <start-point>
+  %p create a new branch named <branch>, referencing <start-point>, which may be specified any way you like, including using a branch name or a tag name
+
+%b git push <repo> <start-point>:refs/heads/<branch>
+  %p create a new remote branch named <branch>, referencing <start-point> on the remote. Repo is the name of the remote.
+    %pre
+      .bash
+        git push origin origin:refs/heads/branch-1
+        git push origin origin/branch-1:refs/heads/branch-2
+        git push origin branch-1 ## shortcut
+
+%b git branch --track <branch> <remote-branch>
+  %p create a tracking branch. Will push/pull changes to/from another repository.
+    %pre
+      .bash
+         git branch --track experimental origin/experimental
+
+%b git branch --set-upstream <branch> <remote-branch> (As of Git 1.7.0)
+  %p Make an existing branch track a remote branch
+    %pre
+      .bash
+        git branch --set-upstream foo origin/foo
+
+%b git branch -d <branch>
+  %p delete the branch <branch>; if the branch you are deleting points to a commit which is not reachable from the current branch, this command will fail with a warning.
+
+%b delete a remote-tracking branch.
+  %p
+    %pre
+      .bash
+        git branch -r -d wycats/master
+
+%b git branch -D <branch>
+  #p even if the branch points to a commit not reachable from the current branch, you may know that that commit is still reachable from some other branch or tag. In that case it is safe to use this command to force git to delete the branch.
+
+%b git checkout <branch>
+  %p make the current branch <branch>, updating the working directory to reflect the version referenced by <branch>
+
+%b git checkout -b <new> <start-point>
+  %p create a new branch <new> referencing <start-point>, and check it out.
+
+%b git push <repository> :<branch>
+  %p removes a branch from a remote repository.
+    %pre
+      .bash
+        git push origin :old_branch_to_be_deleted
+
+%b git co <branch> <path to new file>
+  %p Checkout a file from another branch and add it to this branch. file will still need to be added to the git branch, but it's present.
+    %pre
+      .bash
+        git co remote_at_origin__tick702_antifraud_blocking ..../...nt_elements_for_iframe_blocked_page.rb
+
+%b git show <branch> -- <path to file that does not exist>
+  %p show the contents of a file that was created on another branch and that does not exist on the current branch.
+    %pre
+      .bash
+        git show remote_tick702 -- path/to/fubar.tx
+
+%b git show <rev>:<repo path to file>
+  %p Show the contents of a file at the specific revision. Note: path has to below absolute within the repo.
+
+%h4 Merging
+
+%b git merge <branch>
+  %p merge branch <branch> into the current branch; this command is idempotent and can be run as many times as needed to keep the current branch up-to-date with changes in <branch>
+
+%b git merge <branch> --no-commit
+  %p merge branch <branch> into the current branch, but do not autocommit the result; allows you to make further tweaks
+
+git merge <branch> -s ours
+  %p merge branch <branch> into the current branch, but drops any changes  <branch>, using the current tree as the new tree
+
+
+%h4 Cherry-Picking
+
+%b git cherry-pick [--edit] [-n] [-m parent-number] [-s] [-x] <commit>
+  %p selectively merge a single commit from another local branch
+    %pre
+      .bash
+        git cherry-pick 7300a6130d9447e18a931e898b64eefedea19544
+
+
+%h4 Conflicts
+
+
+%b git mergetool
+  %p work through conflicted files by opening them in your mergetool (opendiff, kdiff3, meld etc.) and choosing left/right chunks. The merged result is staged for commit.
+
+%p For binary files or if mergetool won't do, resolve the conflict(s) manually and then do:
+  %pre
+    .bash
+      git add <file1> [<file2> ...]
+
+%h4 Sharing
+
+
+%b git fetch <remote>
+  %p update the remote-tracking branches for <remote> (defaults to "origin"). Does not initiate a merge into the current branch (see "git pull" below).
+
+%b git pull
+  %p fetch changes from the server, and merge them into the current branch.
+  
+  %p Note: .git/config must have a [branch "some_name"] section for the current branch, to know which remote-tracking branch to merge into the current branch.  Git 1.5.3 and above adds this automatically.
+
+%b git push
+  %p update the server with your commits across all branches that are *COMMON* between your local copy and the server.  Local branches that were never pushed to the server in the first place are not shared.
+
+%b git push origin <branch>
+  %p update the server with your commits made to <branch> since your last push. This is always *required* for new branches that you wish to share. After the first explicit push, "git push" by itself is sufficient.
+
+%b git push origin <branch>:refs/heads/<branch> 
+  %p Which, in fact, is the same as git push origin <branch> but a little more obvious what is happening.
+    %pre
+      .bash
+        git push origin twitter-experiment:refs/heads/twitter-experiment
+
+
+%h4 Reverting
+
+%b git revert <rev>
+  %p Reverse commit specified by <rev> and commit the result.  This does *not* do the same thing as similarly named commands in other VCS's such as "svn revert" or "bzr revert", see below
+
+%b git checkout <file>
+  %p re-checkout <file>, overwriting any local changes
+
+%b git checkout .
+  %p re-checkout all files, overwriting any local changes.  This is most similar to "svn revert" if you're used to Subversion commands
+
+
+%h4 Fix mistakes / Undo
+
+%b git reset --hard
+  %p Abandon everything since your last commit; this command can be DANGEROUS. If merging has resulted in conflicts and you'd like to just forget about the merge, this command will do that.
+
+%b git reset --hard ORIG_HEAD or git reset --hard origin/master 
+  %p Undo your most recent *successful* merge *and* any changes that occurred after.  Useful for forgetting about the merge you just did.  If there are conflicts (the merge was not successful), use "git reset --hard" (above) instead.
+
+%b git reset --soft HEAD^
+  %p Forgot something in your last commit? That's easy to fix. Undo your last commit, but keep the changes in the staging area for editing.
+
+%b git commit --amend
+  %p Redo previous commit, including changes you've staged in the meantime. Also used to edit commit message of previous commit.
+
+
+%h4 Stashing
+
+%p 
+  %b git stash
+%p 
+  %b git stash save <optional-name>
+  %p save your local modifications to a new stash (so you can for example "git svn rebase" or "git pull")
+
+%b git stash apply
+  %p restore the changes recorded in the stash on top of the current working tree state
+
+%b git stash pop
+  %b restore the changes from the most recent stash, and remove it from the stack of stashed changes
+
+%b git stash list
+  %p list all current stashes
+
+%b git stash show <stash-name> -p
+  %p show the contents of a stash - accepts all diff args
+
+%b git stash drop [<stash-name>]
+  %p delete the stash
+
+%b git stash clear
+  %p delete all current stashes
+
+
+%h4 Remotes
+
+%b git remote add <remote> <remote_URL>
+  %p adds a remote repository to your git config.  Can be then fetched locally.
+    %pre
+      .bash
+        git remote add coreteam git://github.com/wycats/merb-plugins.git
+        git fetch coreteam
+
+%b git push <remote> :refs/heads/<branch>
+  %p delete a branch in a remote repository
+
+%b git push <remote> <remote>:refs/heads/<remote_branch>
+  %p create a branch on a remote repository
+    %pre
+      .bash
+        git push origin origin:refs/heads/new_feature_name
+
+%b git push <repository> +<remote>:<new_remote>
+  %p replace a <remote> branch with <new_remote> think twice before do this
+    %pre
+      .bash
+        git push origin +master:my_branch
+
+%b git remote prune <remote>
+  %p prune deleted remote-tracking branches from "git branch -r" listing
+
+%b git remote add -t master -m master origin git://example.com/git.git/
+  %p add a remote and track its master
+
+%b git remote show <remote>
+  %p show information about the remote server.
+
+%b git checkout -b <local branch> <remote>/<remote branch>
+  %p Track a remote branch as a local branch.
+    %pre
+      .bash
+        git checkout -b myfeature origin/myfeature
+
+%b git fetch <remote>
+  %p Retrieves all branches from the remote repository. After this 'git branch --track ...' can be used to track a branch from the new remote.
+
+%h4 Submodules
+
+%b git submodule add <remote_repository> <path/to/submodule>
+  %p add the given repository at the given path. The addition will be part of the next commit.
+
+%b git submodule update [--init]
+  %p Update the registered submodules (clone missing submodules, and checkout the commit specified by the super-repo). --init is needed the first time.
+
+%b git submodule foreach <command>
+  %p Executes the given command within each checked out submodule.
+
+%ol Removing submodules
+  %li Delete the relevant line from the .gitmodules file.
+  %li Delete the relevant section from .git/config.
+  %li Run git rm --cached path_to_submodule (no trailing slash).
+  %li Commit and delete the now untracked submodule files.
+
+%ol Updating submodules
+  To update a submodule to a new commit:
+  %li update submodule:
+    %pre
+      .bash 
+        cd <path to submodule>
+        git pull
+  %li commit the new version of submodule:
+      %pre
+        .bash 
+          cd <path to toplevel>
+          git commit -m "update submodule version"  
+  %li check that the submodule has the correct version
+      %pre
+        .bash 
+          git submodule status
+  
+  %p If the update in the submodule is not committed in the main repository, it is lost and doing git submodule update will revert to the previous version.
+
+%h4 Patches
+
+%b git format-patch HEAD^
+  %p Generate the last commit as a patch that can be applied on another clone (or branch) using 'git am'. Format patch can also generate a patch for all commits using 'git format-patch HEAD^ HEAD' All page files will be enumerated with a prefix, e.g. 0001 is the first patch.
+
+%b git format-patch <Revision>^..<Revision>
+  %p Generate a patch for a single commit.  Revision does not need to be fully specified.
+    %pre
+      .bash
+        git format-patch d8efce43099^..d8efce43099
+ 
+%b git am <patch file>
+  %p Applies the patch file generated by format-patch.
+
+%b git diff --no-prefix > patchfile
+  %p Generates a patch file that can be applied using patch:
+    %pre 
+      .bash
+        patch -p0 < patchfile
+  
+  %p Useful for sharing changes without generating a git commit.
+
+%h4 Tags
+
+%b git tag -l
+  %p Will list all tags defined in the repository.
+
+%b git co <tag_name>
+  %p Will checkout the code for a particular tag. After this you'll probably want to do: 'git co -b <some branch name>' to define a branch. Any changes you now make can be committed to that branch and later merged.
+
+%b Archive
+
+%b git archive master | tar -x -C /somewhere/else
+  %p Will export expanded tree as tar archive at given path
+
+%b git archive master | bzip2 > source-tree.tar.bz2
+  %p Will export archive as bz2
+
+%b git archive --format zip --output /full/path master
+  %p Will export as zip
