@@ -1,0 +1,134 @@
+- bash_lexer = Pygments::Lexer[:bash]
+%h3 Getting Started - Users
+%hr
+
+%p If you have gotten this far, it means you have an account on the system.  Before you are able to start developing you will need to complete a couple of administrative tasks
+
+%ul
+  %li Update your password 
+  %li Upload your SSH key
+  %li Confirm your Profile information
+
+
+%p All three of these elements can be managed from within "My Profile" found at the top right of the screen next to the search box. Once you have done these things, you are are able to start working with the system to collect and manage your code.
+
+%h4 Projects
+
+%p To be able to download and work with code, you need to have access to projects.  This access is managed via teams in the admin area and will define what you specifically have access to.
+
+%p In gitlab, as opposed to other tools we have used, the projects that you see under the projects tab are actually the projects that you have access to.
+
+%p Any project that is shown to you under the projects tab will permit you to browse the code and commits that are associated with it.  There are no further controls over reading (viewing) a Project
+but your access to view the project may not mean that you are able to write to the project.
+
+%p Git lab implements branch level permissions and our specific model is to employ this -  In general you will be able to commit code to the "master" and "staging" branchs, but not the "production" branch.
+
+%p To see what permissions you have on a project, click on the project name to be shown the project details. In the right hand column will be the project statistics along with your access level.  
+
+%p For more information on the permission naming and what they mean, see this help page;
+
+%ul
+  %li
+    = link_to "Permissions", help_permissions_path
+
+To clone the projects, the URL to the project will be shown in the interface - Clone as normal
+
+%h4 GitlabHQ interface
+
+Without going in to too much detail, the GitlanHQ interface for projects has a whole heap of bits associated to them. This includes but is not limited to;
+
+Attached to the Project view
+
+%ul 
+  %li Recent Activity
+  %li Team information
+  %li Project attachments
+  %li Code snippets (similar to gists)
+
+Components of a project
+
+%ul
+  %li File listing (including links to branches)
+  %li Commit listing
+  %li Git network Graph
+  %li Issues list and creation
+  %li Merge Requests
+  %li Wall
+  %li Wiki
+
+Merge requests, Wall, Wiki and, Issues can be disabled on a per-project basis so may not always be available.
+
+%h4 Creating your own projects
+
+%p Unlike with other tools, there is no restriction on creating your own projects.  In GitlabHQ a quota system has been implemented that will limit how many projects you are able to create. The default template for user creation will set this at 10 projects - but this is just a convention. If you need more projects attached to your account, just sling an email and the limit can be raised.
+
+%p When creating your own projects, you will be responsible for the permission control over the base system.  By default this will mean that as the owner you will be made a "master" user which provides you will full control over the whole project.  This means that you define the teams that you want to work on the project, the branch level access - The whole kit and caboodle.  Administrators though will always be able to access projects even though they may not be shown in the 'Projects' view.
+
+%h4 Creating Branches to adhere to Silverstripe process
+
+As discusses in an internal email, this is the new branch style structure that we will be working with.
+
+master
+%ul
+  %li The default branch, all code in here is considered to be volatile and constantly changing
+  %li Everyone can commit and push code in here
+
+staging
+%ul
+  %li Merge requests are made to bring code from master to staging. Staging code is considered to be ready for testing by a client, but there's an expectation that it's likely to be changed before being ready for production. 
+
+production
+%ul
+  %li Considered to be deployable at any time to a production system
+  %li Merge requests are made to bring code from staging to production
+
+If you are creating your own project and you want to adhere to this structure from the beginning, then it is easiest to create the branches immediately after you send up your foundation commit.
+
+To do this, clone your project as normal
+
+
+%ol.help
+  %li
+    %p Clone project
+    .bash
+      %pre 
+        git clone git@example.com:project-name.git
+
+  %li
+    %p Create an initial file
+    .bash
+      %pre 
+        touch README.md
+
+  %li
+    %p Add the file to the git queue
+    .bash
+      %pre 
+        git add README.md
+
+  %li 
+    %p Commit your change to the local repository
+    .bash
+      %pre 
+        git commit -am "Initial Commit"
+
+  %li 
+    %p Push your commit up to create the master branch
+    .bash
+      %pre 
+        git push origin master
+
+  %li 
+    %p Create the two additional branches and push up
+    .bash
+      %pre 
+        git checkout -b staging
+        git push origin staging
+        git checkout -b production
+        git push origin production
+
+  %li 
+    %p Review your code on Commits page
+
+%p You will now have three branches associated with the project.  Next you can control access them them via the "Commits" -> "Branches" -> "Protected Branches" control.
+ 

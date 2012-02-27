@@ -1,0 +1,94 @@
+- bash_lexer = Pygments::Lexer[:bash]
+%h3 Getting Started - Administrators
+
+%p As and administrator you will be able to do the following things;
+
+%ul
+  %li Create and delete users
+  %li Create and delete projects
+  %li Control project permissions and access
+  %li Control Project teams
+  %li Add and remove functionality from Projects
+  %li Manage Resque jobs
+
+%p There is more to the tool than this, but they are controlled at a lower level (OS).
+
+%h3 Accessing the administration console
+
+%p The administration console is shown to all users who have been marked as adminstrators of the system.  If you have a link in the right hand column to 'Visit Admin area' then you have been granted the admin privilege.
+
+%p If the link is available to you, then click it to access the admin console.
+
+%p You will be presented with a screen with the following tabs;
+
+%ol
+  %li Users
+  %li Projects
+  %li Emails
+  %li Resque
+
+
+%h3 Managing users
+
+%p GitlabHQ (and specifically our implementation) does not allow for users to self register - In fact, I suspect it never will.  As such we need to create user accounts for people so that they are able to access the system.
+
+%p To create a user, click to the administration console.  You should be presented with the users section by default.  To create the new user, Click 'New User' 
+
+%p A user account needs the following attribute;
+
+%ul
+  %li Name
+  %li Email address (which will be their UserID)
+  %li A password
+
+%p The other sections are optional, and I typically leave up to the user to add.
+
+%p Of note is a field 'Projects Limit'.  This is the number of projects that the user is able to create.  Typically I will leave that as being the default of '10' but you can raise that for people depending on need.
+
+%p Additionally there is the checkbox to make a user an admin.  An admin can see all projects (in a round about way) so use this sparingly.
+
+%p There is no concept of Groups within the interface beyond the Teams that are associated with Projects.  This is something that has been requested as an enhancement, but there has been little movement on this yet.  This means that it is sensible to name people based on their associations (eg DPC - Mark Taylor) though users are able to change this via their own profile page.
+
+
+%h3 Managing Projects
+
+%p By in large, users are able to create their own projects (unless its decided to prevent that). This means that keeping an eye on the projects tab may be worthwhile.  
+
+%p When a user creates their own projects, they by default will receive 'Master' permissions to the project and the repositories.  This permission means that they have full control over the whole thing.  As a consequence of that, they will be able to push to the Production branch if one exists.  
+
+%p For projects that are to be fully controlled by Silverstripe Australia, it may be worth considering a policy where by all projects that have a production branch should be owned by the lead developer, and they and a select group then have master permissions over the project.  Permissions at branch level can then be controlled and distributed as seen fit.  There by keeping in step with the stated objective of the move to GitlabHQ.
+
+%p
+  %b Editing Projects
+
+%p From the project view, there are two modes to editing a project
+
+%ol
+  %li The Project name Hyperlink
+  %li The Edit button 
+
+%p Both of these options will allow you to edit different components of the project.
+
+%p The Hyperlink will take you to the section that controls the 'Team' membership of the project.  There you can add and remove members from the project as well as define the permissions that the use has.
+%p The edit button will allow you to edit the attributes of the project. Here you change names, URLs and descriptions.
+
+%p There is a destroy button that will remove the project and delete the repository on disk.  Its big and red, so you won't miss it.
+
+%p
+  %b Editing Team Membership
+
+%p To add or remove a user from a project team, Click the Project name, then under the 'Users' field, click to produce a listing of users.  You may select many users in one shot. Once you have chosen your users, select the level of permissions that you want them to have to the repository.  Typically you would select 'Developer', but that may depend on who the target user is.  To better understand the permissions see this help page;
+
+%ul
+  %li
+    = link_to "Permissions", help_permissions_path
+
+%h3 Emails Tab
+
+%p Currently there is nothing that is user editable here.  This is something that we are expecting to be included in the next release.
+
+
+%h3 Resque
+
+%p Resque is a Redis backed queue for processing background jobs.  This tab does not let you modify any thing (other than deleting queues) but will provide some insight in to the activity in the background.
+%p Jobs should be executed with every commit as the post commit hooks will perform some magic that is fed in to redis.
