@@ -5,7 +5,7 @@ Gitlab::Application.routes.draw do
   require 'resque/server'
   mount Resque::Server.new, at: '/info/resque'
 
-  get 'help' => 'help#index'\
+  get 'help' => 'help#index'
   get 'help/getting_started' => 'help#getting_started'
   get 'help/getting_started_admin' => 'help#getting_started_admin'
   get 'help/permissions' => 'help#permissions'
