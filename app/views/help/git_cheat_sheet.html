@@ -11,7 +11,7 @@
 
 <h4>Setup</h4>
 
-<p>git clone [repo]</p>
+<p><strong>git clone [repo]</strong></p>
 
 <p>clone the repository specified by ; this is similar to
 "checkout" in some other version control systems such as
@@ -19,14 +19,13 @@ Subversion and CVS</p>
 
 <h4>Configuration</h4>
 
-<p>git config -e [--global]</p>
+<p><strong>git config -e [--global]</strong></p>
 
 <p>edit the .git/config [or ~/.gitconfig] file in your
 $EDITOR</p>
 
 <div class='bash'>
 <pre>
- 
     git config --global user.name 'John Doe'  
     git config --global user.emailjohndoe@example.com
 </pre>
@@ -36,8 +35,8 @@ $EDITOR</p>
 
 <p>tells git-branch and git-checkout to setup new branches so
 that git-pull(1) will appropriately merge from that remote
-branch.&nbsp; Recommended. Without this, you will have to add
---track to your branch command or manually merge remote tracking
+branch.<br \>
+Recommended. Without this, you will have to add --track to your branch command or manually merge remote tracking
 branches with "fetch" and then "merge".</p>
 
 <p><strong>git config core.autocrlf true</strong></p>
@@ -45,8 +44,11 @@ branches with "fetch" and then "merge".</p>
 <p>This setting tells git to convert the newlines to the system's
 standard when checking out files, and to LF newlines when
 committing in</p>
-
-<p>git config --list</p>
+<div class='bash'>
+<pre>
+git config --list
+</pre>
+</div>
 
 <p>To view all options</p>
 
@@ -76,7 +78,6 @@ area and HEAD:</p>
 <div class="bash">
 <pre>
     git diff --cached
- 
 </pre>
 </div>
 
@@ -114,7 +115,7 @@ certain date</li>
 conflicts</li>
 </ul>
 
-<p>git log ..</p>
+<p><strong>git log ..</strong></p>
 
 <p>show commits between the specified range. Useful for seeing
 changes from remotes:</p>
@@ -122,7 +123,6 @@ changes from remotes:</p>
 <div class="bash">
 <pre>
     git log HEAD..origin/master
- 
 </pre>
 </div>
 
@@ -139,7 +139,7 @@ information.</p>
 
 <p><strong>git blame</strong></p>
 
-<p>show who authored each line/p&gt;</p>
+<p>show who authored each line</p>
 
 <p><strong>git blame</strong></p>
 
@@ -157,8 +157,7 @@ first view all changes made to a file on a branch:</p>
 
 <div class="bash">
 <pre>
-      git whatchanged &lt;branch&gt; &lt;file&gt;  | grep commit | colrm 1 7 | xargs -I % git show % &lt;file&gt;
- 
+      git whatchanged &lt;branch&gt; &lt;file&gt;  | grep commit | colrm 1 7 | xargs -I % git show % &lt;file&gt; 
 </pre>
 </div>
 
@@ -216,12 +215,12 @@ subdirectories</p>
 
 <h4>Ignoring</h4>
 
-<p><strong>_ Option 1:</strong>_</p>
+<p><strong>Option 1:</strong></p>
 
 <p>Edit $GITDIR/info/exclude. See Environment Variables below for
 explanation on $GITDIR.</p>
 
-<p><strong>Option 2:</strong>_</p>
+<p><strong>Option 2:</strong></p>
 
 <p>Add a file .gitignore to the root of your project. This file
 will be checked in. Either way you need to add patterns to
@@ -229,20 +228,21 @@ exclude to these files.</p>
 
 <h4>Staging</h4>
 
-<p><strong>git add</strong> <strong>git stage</strong></p>
+<p><strong>git add</strong><br />
+ <strong>git stage</strong></p>
 
 <p>add changes in , ... to the staging area (to be included in
 the next commit</p>
 
-<p><strong>git add -p</strong> <strong>git stage
---patch</strong></p>
+<p><strong>git add -p<br \>
+git stage --patch</strong></p>
 
 <p>interactively walk through the current changes (hunks) in the
 working tree, and decide which changes to add to the staging
 area.</p>
 
-<p><strong>_ git add -i</strong>_ <em>_ git stage
---interactive</em>_</p>
+<p><strong>git add -i<br />
+git stage --interactive</strong></p>
 
 <p>interactively add files/changes to the staging area. For a
 simpler mode (no menu), try</p>
@@ -250,13 +250,12 @@ simpler mode (no menu), try</p>
 <div class="bash">
 <pre>
      git add --patch (above)
-   
 </pre>
 </div>
 
 <h4>Unstaging</h4>
 
-<p><strong>_ git reset HEAD</strong> _</p>
+<p><strong>git reset HEAD</strong> </p>
 
 <p>remove the specified files from the next commit</p>
 
@@ -374,7 +373,6 @@ present.</p>
 <div class="bash">
 <pre>
       git co remote at origin tick702_antifraudblocking..../...ntelements/for/iframe/blocked/page.rb
-   
 </pre>
 </div>
 
@@ -386,7 +384,6 @@ and that does not exist on the current branch.</p>
 <div class="bash">
 <pre>
       git show remote_tick702 -- path/to/fubar.txt
-   
 </pre>
 </div>
 
@@ -418,7 +415,6 @@ using the current tree as the new tree</p>
 <div class="bash">
 <pre>
       git cherry-pick [--edit] [-n] [-m parent-number] [-s] [-x]
-   
 </pre>
 </div>
 
@@ -427,7 +423,6 @@ branch</p>
 
 <div class="bash">
 <pre>
- <br />
 git cherry-pick 7300a6130d9447e18a931e898b64eefedea19544
 </pre>
 </div>
@@ -480,14 +475,20 @@ are not shared.</p>
 push. This is always <em>required</em> for new branches that you
 wish to share. After the first explicit push, "git push" by
 itself is sufficient.</p>
-
-<p><strong>git push origin :refs/heads/</strong></p>
+<div class="bash">
+<pre>
+git push origin :refs/heads/
+</pre>
+</div>
 
 <p>Which, in fact, is the same as git push origin but a little
 more obvious what is happening.</p>
 
-<p>git push origin
-twitter-experiment:refs/heads/twitter-experiment</p>
+<div class="bash">
+<pre>
+git push origin twitter-experiment:refs/heads/twitter-experiment
+</pre>
+</div>
 
 <h4>Reverting</h4>
 
@@ -500,8 +501,11 @@ other VCS's such as "svn revert" or "bzr revert", see below</p>
 <p><strong>git checkout</strong></p>
 
 <p>re-checkout , overwriting any local changes</p>
-
-<p><strong>_git checkout . _</strong></p>
+<div class="bash">
+<pre>
+git checkout . </strong>
+</pre>
+</div>
 
 <p>re-checkout all files, overwriting any local changes. This is
 most similar to "svn revert" if you're used to Subversion
@@ -560,7 +564,7 @@ from the stack of stashed changes</p>
 
 <p>show the contents of a stash - accepts all diff args</p>
 
-<p><strong>git stash drop []</strong></p>
+<p><strong>git stash drop</strong></p>
 
 <p>delete the stash</p>
 
@@ -574,10 +578,11 @@ from the stack of stashed changes</p>
 
 <p>adds a remote repository to your git config. Can be then
 fetched locally.</p>
-
-<p>git remote add coreteam
-git://github.com/wycats/merb-plugins.git git fetch coreteam</p>
-
+<div class="bash">
+<pre>
+git remote add coreteam git://github.com/wycats/merb-plugins.git git fetch coreteam
+</pre>
+</div>
 <p><strong>git push :refs/heads/</strong></p>
 
 <p>delete a branch in a remote repository</p>
@@ -586,18 +591,25 @@ git://github.com/wycats/merb-plugins.git git fetch coreteam</p>
 
 <p>create a branch on a remote repository</p>
 
-<p>git push origin origin:refs/heads/new<em>feature</em>name</p>
+<div class="bash">
+<pre>
+git push origin origin:refs/heads/new-feature-name
+</pre>
+</div>
 
 <p><strong>git push +:</strong></p>
 
 <p>replace a branch with think twice before do this</p>
 
-<p>git push origin +master:my_branch</p>
+<div class="bash">
+<pre>
+git push origin +master:my_branch
+</pre>
+</div>
 
 <p><strong>git remote prune</strong></p>
 
-<p>prune deleted remote-tracking branches from "git branch -r"
-listing</p>
+<p>prune deleted remote-tracking branches from "git branch -r" listing</p>
 
 <p><strong>git remote add -t master -m master origin
 git://example.com/git.git/</strong></p>
@@ -608,12 +620,14 @@ git://example.com/git.git/</strong></p>
 
 <p>show information about the remote server.</p>
 
-<p><strong>git checkout -b /</strong></p>
+<p><strong>git checkout -b </strong></p>
 
 <p>Track a remote branch as a local branch.</p>
-
-<p>git checkout -b myfeature origin/myfeature</p>
-
+<div class="bash">
+<pre>
+git checkout -b myfeature origin/myfeature
+</pre>
+</div>
 <p><strong>git fetch</strong></p>
 
 <p>Retrieves all branches from the remote repository. After this
@@ -633,9 +647,12 @@ is the first patch.</p>
 <p><strong>git format-patch ^..</strong></p>
 
 <p>Generate a patch for a single commit. Revision does not need
-to be fully specified. git format-patch
-d8efce43099^..d8efce43099</p>
-
+to be fully specified. 
+<div class="bash">
+<pre>
+git format-patch d8efce43099^..d8efce43099
+</pre>
+</div
 <p><strong>git am</strong></p>
 
 <p>Applies the patch file generated by format-patch.</p>
@@ -644,7 +661,11 @@ d8efce43099^..d8efce43099</p>
 
 <p>Generates a patch file that can be applied using patch:</p>
 
-<p>patch -p0 &lt; patchfile</p>
+<div class="bash">
+<pre>
+patch -p0 &lt; patchfile
+</pre>
+</div>
 
 <p>Useful for sharing changes without generating a git
 commit.</p>
@@ -669,8 +690,7 @@ merged.</p>
 
 <p>Will export expanded tree as tar archive at given path</p>
 
-<p><strong>git archive master | bzip2 &gt;
-source-tree.tar.bz2</strong></p>
+<p><strong>git archive master | bzip2 &gt; source-tree.tar.bz2</strong></p>
 
 <p>Will export archive as bz2</p>
 
