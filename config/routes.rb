@@ -10,6 +10,7 @@ Gitlab::Application.routes.draw do
   get 'help/getting_started_admin' => 'help#getting_started_admin'
   get 'help/permissions' => 'help#permissions'
   get 'help/workflow' => 'help#workflow'
+  get 'help/branch_permissions' => 'help#branch_permissions'
 
   namespace :admin do
     resources :users do 
