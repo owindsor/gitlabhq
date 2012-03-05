@@ -30,16 +30,15 @@ class MergeRequestsController < ApplicationController
                       else @merge_requests.opened
                       end
 
-    @merge_requests = @merge_requests.includes(:author, :project)
+    @merge_requests = @merge_requests.includes(:author, :project).order("created_at desc")
   end
 
   def show
     unless @project.repo.heads.map(&:name).include?(@merge_request.target_branch) && 
       @project.repo.heads.map(&:name).include?(@merge_request.source_branch)
-      head(404)and return 
+      git_not_found! and return 
     end
 
-    @notes = @merge_request.notes.inc_author.order("created_at DESC").limit(20)
     @note = @project.notes.new(:noteable => @merge_request)
 
     @commits = @project.repo.
@@ -52,14 +51,16 @@ class MergeRequestsController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.js { respond_with_notes }
+      format.js
     end
   end
 
   def diffs
     @diffs = @merge_request.diffs
     @commit = @merge_request.last_commit
-    @line_notes = []
+
+    @comments_allowed = true
+    @line_notes = @merge_request.notes.where("line_code is not null")
   end
 
   def new

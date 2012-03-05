@@ -3,11 +3,16 @@ require 'spec_helper'
 describe Project do
   describe "Associations" do
     it { should have_many(:users) }
-    it { should have_many(:users_projects) }
-    it { should have_many(:issues) }
-    it { should have_many(:notes) }
-    it { should have_many(:snippets) }
+    it { should have_many(:protected_branches).dependent(:destroy) }
+    it { should have_many(:events).dependent(:destroy) }
+    it { should have_many(:wikis).dependent(:destroy) }
+    it { should have_many(:merge_requests).dependent(:destroy) }
+    it { should have_many(:users_projects).dependent(:destroy) }
+    it { should have_many(:issues).dependent(:destroy) }
+    it { should have_many(:notes).dependent(:destroy) }
+    it { should have_many(:snippets).dependent(:destroy) }
     it { should have_many(:web_hooks).dependent(:destroy) }
+    it { should have_many(:deploy_keys).dependent(:destroy) }
   end
 
   describe "Validation" do
@@ -69,130 +74,6 @@ describe Project do
     end
   end
 
-  describe "web hooks" do
-    let(:project) { Factory :project }
-
-    context "with no web hooks" do
-      it "raises no errors" do
-        lambda {
-          project.execute_web_hooks('oldrev', 'newrev', 'ref')
-        }.should_not raise_error
-      end
-    end
-
-    context "with web hooks" do
-      before do
-        @webhook = Factory(:web_hook)
-        @webhook_2 = Factory(:web_hook)
-        project.web_hooks << [@webhook, @webhook_2]
-      end
-
-      it "executes multiple web hook" do
-        @webhook.should_receive(:execute).once
-        @webhook_2.should_receive(:execute).once
-
-        project.execute_web_hooks('oldrev', 'newrev', 'refs/heads/master')
-      end
-    end
-
-    context "does not execute web hooks" do
-      before do
-        @webhook = Factory(:web_hook)
-        project.web_hooks << [@webhook]
-      end
-
-      it "when pushing a branch for the first time" do
-        @webhook.should_not_receive(:execute)
-        project.execute_web_hooks('00000000000000000000000000000000', 'newrev', 'refs/heads/master')
-      end
-
-      it "when pushing tags" do
-        @webhook.should_not_receive(:execute)
-        project.execute_web_hooks('oldrev', 'newrev', 'refs/tags/v1.0.0')
-      end
-    end
-
-    context "when pushing new branches" do
-
-    end
-
-    context "when gathering commit data" do
-      before do
-        @oldrev, @newrev, @ref = project.fresh_commits(2).last.sha, project.fresh_commits(2).first.sha, 'refs/heads/master'
-        @commit = project.fresh_commits(2).first
-
-        # Fill nil/empty attributes
-        project.description = "This is a description"
-
-        @data = project.web_hook_data(@oldrev, @newrev, @ref)
-      end
-
-      subject { @data }
-
-      it { should include(before: @oldrev) }
-      it { should include(after: @newrev) }
-      it { should include(ref: @ref) }
-
-      context "with repository data" do
-        subject { @data[:repository] }
-
-        it { should include(name: project.name) }
-        it { should include(url: project.web_url) }
-        it { should include(description: project.description) }
-        it { should include(homepage: project.web_url) }
-        it { should include(private: project.private?) }
-      end
-
-      context "with commits" do
-        subject { @data[:commits] }
-
-        it { should be_an(Array) }
-        it { should have(1).element }
-
-        context "the commit" do
-          subject { @data[:commits].first }
-
-          it { should include(id: @commit.id) }
-          it { should include(message: @commit.safe_message) }
-          it { should include(timestamp: @commit.date.xmlschema) }
-          it { should include(url: "http://localhost/#{project.code}/commits/#{@commit.id}") }
-
-          context "with a author" do
-            subject { @data[:commits].first[:author] }
-
-            it { should include(name: @commit.author_name) }
-            it { should include(email: @commit.author_email) }
-          end
-        end
-      end
-
-    end
-  end
-
-  describe "updates" do
-    let(:project) { Factory :project }
-
-    before do
-      @issue = Factory :issue,
-        :project => project,
-        :author => Factory(:user),
-        :assignee => Factory(:user)
-
-      @note = Factory :note,
-        :project => project,
-        :author => Factory(:user)
-
-      @commit = project.fresh_commits(1).first
-    end
-
-    describe "return commit, note & issue" do
-      it { project.updates(3).count.should == 3 }
-      it { project.updates(3).last.id.should == @commit.id }
-      it { project.updates(3).include?(@issue).should be_true }
-      it { project.updates(3).include?(@note).should be_true }
-    end
-  end
-
   describe "last_activity" do
     let(:project) { Factory :project }
 
@@ -202,8 +83,8 @@ describe Project do
         :author => Factory(:user)
     end
 
-    it { project.last_activity.should == @note }
-    it { project.last_activity_date.to_s.should == @note.created_at.to_s }
+    it { project.last_activity.should == Event.last }
+    it { project.last_activity_date.to_s.should == Event.last.created_at.to_s }
   end
 
   describe "fresh commits" do
@@ -303,5 +184,6 @@ end
 #  issues_enabled         :boolean         default(TRUE), not null
 #  wall_enabled           :boolean         default(TRUE), not null
 #  merge_requests_enabled :boolean         default(TRUE), not null
+#  wiki_enabled           :boolean         default(TRUE), not null
 #
 

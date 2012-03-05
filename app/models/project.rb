@@ -3,18 +3,17 @@ require "grit"
 class Project < ActiveRecord::Base
   belongs_to :owner, :class_name => "User"
 
+  has_many :users,          :through => :users_projects
+  has_many :events,         :dependent => :destroy
   has_many :merge_requests, :dependent => :destroy
-  has_many :issues, :dependent => :destroy, :order => "position"
+  has_many :issues,         :dependent => :destroy, :order => "position"
   has_many :users_projects, :dependent => :destroy
-  has_many :users, :through => :users_projects
-  has_many :notes, :dependent => :destroy
-  has_many :snippets, :dependent => :destroy
-  has_many :deploy_keys, :dependent => :destroy, :foreign_key => "project_id", :class_name => "Key"
-  has_many :web_hooks, :dependent => :destroy
+  has_many :notes,          :dependent => :destroy
+  has_many :snippets,       :dependent => :destroy
+  has_many :deploy_keys,    :dependent => :destroy, :foreign_key => "project_id", :class_name => "Key"
+  has_many :web_hooks,      :dependent => :destroy
+  has_many :wikis,          :dependent => :destroy
   has_many :protected_branches, :dependent => :destroy
-  has_many :wikis, :dependent => :destroy
-
-  acts_as_taggable
 
   validates :name,
             :uniqueness => true,
@@ -38,14 +37,9 @@ class Project < ActiveRecord::Base
                          :message => "only letters, digits & '_' '-' '.' allowed"  },
             :length   => { :within => 3..255 }
 
-  validates :owner,
-            :presence => true
-
+  validates :owner, :presence => true
   validate :check_limit
   validate :repo_name
-
-  after_destroy :destroy_repository
-  after_save :update_repository
 
   attr_protected :private_flag, :owner_id
 
@@ -89,21 +83,35 @@ class Project < ActiveRecord::Base
     [GIT_HOST['host'], code].join("/")
   end
 
-  def execute_web_hooks(oldrev, newrev, ref)
+  def observe_push(oldrev, newrev, ref, author_key_id)
+    data = web_hook_data(oldrev, newrev, ref, author_key_id)
+
+    Event.create(
+      :project => self,
+      :action => Event::Pushed,
+      :data => data
+    )
+  end
+
+  def execute_web_hooks(oldrev, newrev, ref, author_key_id)
     ref_parts = ref.split('/')
 
     # Return if this is not a push to a branch (e.g. new commits)
     return if ref_parts[1] !~ /heads/ || oldrev == "00000000000000000000000000000000"
 
-    data = web_hook_data(oldrev, newrev, ref)
+    data = web_hook_data(oldrev, newrev, ref, author_key_id)
+
     web_hooks.each { |web_hook| web_hook.execute(data) }
   end
 
-  def web_hook_data(oldrev, newrev, ref)
+  def web_hook_data(oldrev, newrev, ref, author_key_id)
+    key = Key.find_by_identifier(author_key_id)
     data = {
       before: oldrev,
       after: newrev,
       ref: ref,
+      user_id: key.user.id,
+      user_name: key.user_name,
       repository: {
         name: name,
         url: web_url,
@@ -146,18 +154,6 @@ class Project < ActiveRecord::Base
 
   def team_member_by_id(user_id)
     users_projects.find_by_user_id(user_id)
-  end
-
-  def fresh_merge_requests(n)
-    merge_requests.includes(:project, :author).order("created_at desc").first(n)
-  end
-
-  def fresh_issues(n)
-    issues.includes(:project, :author).order("created_at desc").first(n)
-  end
-
-  def fresh_notes(n)
-    notes.inc_author_project.order("created_at desc").first(n)
   end
 
   def common_notes
@@ -262,68 +258,19 @@ class Project < ActiveRecord::Base
   end
 
   def last_activity
-    updates(1).first
-  rescue
-    nil
+    events.last || nil
   end
 
   def last_activity_date
-    last_activity.try(:created_at)
+    if events.last
+      events.last.created_at
+    else
+      updated_at
+    end
   end
 
   def last_activity_date_cached(expire = 1.hour)
-    activity_date_key = "project_#{id}_activity_date"
-
-    cached_activities = Rails.cache.read(activity_date_key)
-    if cached_activities
-      activity_date = if cached_activities == "Never"
-                        nil
-                      else
-                        cached_activities
-                      end
-    else
-      activity_date = last_activity_date
-      Rails.cache.write(activity_date_key, activity_date || "Never", :expires_in => expire)
-    end
-
-    activity_date
-  end
-
-  # Get project updates from cache
-  # or calculate. 
-  def cached_updates(limit, expire = 2.minutes)
-    activities_key = "project_#{id}_activities"
-    cached_activities = Rails.cache.read(activities_key)
-    if cached_activities
-      activities = cached_activities
-    else
-      activities = updates(limit)
-      Rails.cache.write(activities_key, activities, :expires_in => expire)
-    end
-
-    activities
-  end
-
-  # Get 20 events for project like
-  # commits, issues or notes
-  def updates(n = 3)
-    [
-      fresh_commits(n),
-      fresh_issues(n),
-      fresh_notes(n)
-    ].compact.flatten.sort do |x, y|
-      y.created_at <=> x.created_at
-    end[0...n]
-  end
-
-  def activities(n=3)
-    [
-      fresh_issues(n),
-      fresh_merge_requests(n),
-      notes.inc_author_project.where("noteable_type is not null").order("created_at desc").first(n)
-    ].compact.flatten.sort do |x, y|
-      y.created_at <=> x.created_at
-    end[0...n]
+    last_activity_date
   end
 
   def check_limit
@@ -364,5 +311,6 @@ end
 #  issues_enabled         :boolean         default(TRUE), not null
 #  wall_enabled           :boolean         default(TRUE), not null
 #  merge_requests_enabled :boolean         default(TRUE), not null
+#  wiki_enabled           :boolean         default(TRUE), not null
 #
 

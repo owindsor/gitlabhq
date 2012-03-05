@@ -124,7 +124,7 @@ Gitlab::Application.routes.draw do
         get   :search
       end
     end
-    resources :notes, :only => [:create, :destroy]
+    resources :notes, :only => [:index, :create, :destroy]
   end
-  root :to => "projects#index"
+  root :to => "dashboard#index"
 end

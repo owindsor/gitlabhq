@@ -49,7 +49,6 @@ class IssuesController < ApplicationController
   end
 
   def show
-    @notes = @issue.notes.inc_author.order("created_at DESC").limit(20)
     @note = @project.notes.new(:noteable => @issue)
 
     @commits = if @issue.branch_name && @project.repo.heads.map(&:name).include?(@issue.branch_name)
@@ -61,7 +60,7 @@ class IssuesController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.js { respond_with_notes }
+      format.js
     end
   end
 
@@ -70,7 +69,10 @@ class IssuesController < ApplicationController
     @issue.author = current_user
     @issue.save
 
-    respond_with(@issue)
+    respond_to do |format|
+      format.html { redirect_to project_issue_path(@project, @issue) }
+      format.js
+    end
   end
 
   def update
