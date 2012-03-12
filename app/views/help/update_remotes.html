@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<meta name="generator" content="HTML Tidy, see www.w3.org">
+<title></title>
+</head>
+<body>
+<h1>Update repository details</h1>
+
+<p>This outlines how to update your local repository to use the
+new gitlab remote sources. Currently we deal with only the unix
+options, but these same commands should be executable from the
+git-bash shell in windows.</p>
+
+<h2>For the impatient</h2>
+
+<pre>
+cd  example_repo
+git remote set-url origin git@gitlab.silverstripe.com.au:example_repo.git
+git fetch origin
+</pre>
+
+<h2>The longer explanation;</h2>
+
+<p>Each repo has remote sources that you commit your code back
+to. These are defined in the configuration of the actual
+repository. This means that each persons personal repository
+(local copy) may have totally different configuration All
+commands need to be run from within your local repository, so
+change in to the directory before executing any of the
+commands;</p>
+
+<pre>
+cd example_repo
+</pre>
+
+<p>In the above commands, I assume that you have the SSAU
+repository as the Origin remote. You can check what remotes you
+have configured within a repository with the following;</p>
+
+<pre>
+git remote -v
+</pre>
+
+<p>which should output somthing like this;</p>
+
+<pre>
+origin  git@cebada.silverstripe.com.au:example_repo.git(fetch)
+origin  git@cebada.silverstripe.com.au:example_repo.git (push)
+</pre>
+
+<p>You can see that you have two items configured - A Fetch and a
+Push URL. For now, We are not worried about the difference, just
+that they are the same.</p>
+
+<p>The format of the output is;</p>
+
+<pre>
+Remote Name, Remote URL
+</pre>
+
+<p>Now that we have that, we can replace the remote definition
+with a new URL using the 'remote set-url' option.</p>
+
+<p>First, grab the new URL from the gitlab interface, then plug
+in the values;</p>
+
+<pre>
+git remote set-url origin git@gitlab.silverstripe.com.au:example_repo.git
+</pre>
+
+Once you have configured the remote you can make sure that you
+can connect to the repo with a quick fetch
+
+<pre>
+git fetch origin
+</pre>
+
+<p>All being good, you will either get the latest updates, or you
+will be told that your repo is currently in sync.</p>
+</body>
+</html>
+
