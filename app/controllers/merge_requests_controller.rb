@@ -26,7 +26,7 @@ class MergeRequestsController < ApplicationController
     @merge_requests = case params[:f].to_i
                       when 1 then @merge_requests
                       when 2 then @merge_requests.closed
-                      when 2 then @merge_requests.opened.assigned(current_user)
+                      when 3 then @merge_requests.opened.assigned(current_user)
                       else @merge_requests.opened
                       end
 
@@ -87,7 +87,7 @@ class MergeRequestsController < ApplicationController
 
   def update
     respond_to do |format|
-      if @merge_request.update_attributes(params[:merge_request])
+      if @merge_request.update_attributes(params[:merge_request].merge(:author_id_of_changes => current_user.id))
         format.html { redirect_to [@project, @merge_request], notice: 'Merge request was successfully updated.' }
         format.json { head :ok }
       else
