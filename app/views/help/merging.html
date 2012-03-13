@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<meta name="generator" content="HTML Tidy, see www.w3.org">
+<title></title>
+</head>
+<body>
+<h1>Merging Changes</h1>
+
+<p>This is a quick outline of how to merge changes. This may be
+applied to both upstream merge requests and also to and from
+feature branches. The primary thing to remember is the direction
+that you complete the merge in. In this example, we will merge a
+chance from the DEV branch to the MASTER branch;</p>
+
+<h3>For the impatient;</h3>
+
+<pre>
+  git fetch origin
+  git checkout -b dev origin/dev
+  git checkout master
+  git merge dev
+  git push origin master
+</pre>
+
+<h3>The complete explanation</h3>
+
+<p>You have a branch that you have been working on that is called
+dev. This is your feature branch that contains a set of changes.
+You want to commit it to the master branch so that people are
+able to grab it from there and work on it. This is also in
+preparation for it being moved in to the production branch once
+it has been tested and verified.</p>
+
+<strong>Step 1 - Fetch the origin source to make sure that you
+are in sync.</strong>
+
+<pre>
+  git fetch origin
+</pre>
+
+<strong>Step 2 - Checkout the dev branch, based against
+origin/dev</strong>
+
+<pre>
+  git checkout -b dev origin/dev
+</pre>
+
+<strong>Step 3 - Checkout the Master branch</strong>
+
+<pre>
+  git checkout master
+</pre>
+
+<strong>Step 4 - Merge the Dev branch in to the currently checked
+out master</strong>
+
+<p>The direction in this step is important. You are asking to
+include changes from the dev branch in to the master branch. If
+you were currently working within the dev branch and you asked to
+merge in the master branch, then you would be taking changes FROM
+Master, not adding them to it.</p>
+
+<pre>
+  git merge dev
+</pre>
+
+<strong>Step 5 - Push the changes back up to the remote server,
+to the branch Master</strong>
+
+<pre>
+  git push origin master
+</pre>
+</body>
+</html>
+

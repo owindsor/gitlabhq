@@ -12,7 +12,10 @@ Gitlab::Application.routes.draw do
   get 'help/workflow' => 'help#workflow'
   get 'help/branch_permissions' => 'help#branch_permissions'
   get 'help/update_remotes' => 'help#update_remotes'
-
+  get 'help/git_cheat_sheet' => 'help#git_cheat_sheet'
+  get 'help/merging' => 'help#merging'
+  get 'help/deployment_keys' => 'help#deployment_keys'
+  get 'help/known_issues' => 'help#known_issues'
 
   namespace :admin do
     resources :users do
