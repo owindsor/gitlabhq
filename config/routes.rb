@@ -11,15 +11,17 @@ Gitlab::Application.routes.draw do
   get 'help/permissions' => 'help#permissions'
   get 'help/workflow' => 'help#workflow'
   get 'help/branch_permissions' => 'help#branch_permissions'
+  get 'help/update_remotes' => 'help#update_remotes'
+
 
   namespace :admin do
-    resources :users do 
-      member do 
+    resources :users do
+      member do
         put :team_update
       end
     end
-    resources :projects, :constraints => { :id => /[^\/]+/ } do 
-      member do 
+    resources :projects, :constraints => { :id => /[^\/]+/ } do
+      member do
         get :team
         put :team_update
       end
@@ -61,12 +63,12 @@ Gitlab::Application.routes.draw do
 
     resources :wikis, :only => [:show, :edit, :destroy, :create] do
       member do
-        get "history"        
+        get "history"
       end
     end
 
-    resource :repository do 
-      member do 
+    resource :repository do
+      member do
         get "branches"
         get "tags"
         get "archive"
@@ -76,14 +78,14 @@ Gitlab::Application.routes.draw do
     resources :deploy_keys
     resources :protected_branches, :only => [:index, :create, :destroy]
 
-    resources :refs, :only => [], :path => "/" do 
-      collection do 
+    resources :refs, :only => [], :path => "/" do
+      collection do
         get "switch"
       end
 
-      member do 
+      member do
         get "tree", :constraints => { :id => /[a-zA-Z.\/0-9_\-]+/ }
-        get "blob", 
+        get "blob",
           :constraints => {
             :id => /[a-zA-Z.0-9\/_\-]+/,
             :path => /.*/
@@ -100,20 +102,20 @@ Gitlab::Application.routes.draw do
       end
     end
 
-    resources :merge_requests do 
-      member do 
+    resources :merge_requests do
+      member do
         get :diffs
       end
     end
-    
+
     resources :snippets
-    resources :hooks, :only => [:index, :new, :create, :destroy, :show] do 
-      member do 
+    resources :hooks, :only => [:index, :new, :create, :destroy, :show] do
+      member do
         get :test
       end
     end
-    resources :commits do 
-      collection do 
+    resources :commits do
+      collection do
         get :compare
       end
     end
