@@ -10,10 +10,14 @@
 <body>
   <h1>Deployment keys</h1>
 
-  <p>Gitlab has the concept of deployment keys. These are keys that are able to access the repositories but are only able to read the content, not commit back any changes. Additionally, deployment keys are not associated with users and as a matter of good practice, you should never use a key that a user has assigned to their profile as a deployment key. The rules for the deployment user will override their core behaviours. With respect to jenkins, we use a single key for jenkins based access which you are able to get out of the password manager - I have some hesitation putting it in this doc as it is out in github.</p>
+  <p>Gitlab has the concept of deployment keys. These are keys that are able to access the repositories but are only able to read the content, not commit back any changes. Additionally, deployment keys are not associated with users and as a matter of good practice, you should never use a key that a user has assigned to their profile as a deployment key.</p>
+
+  <p>The rules for the deployment user will override their core behaviours. With respect to jenkins, we use a single key for jenkins based access which you are able to get out of the password manager - I have some hesitation putting it in this doc as it is out in github.</p>
 
   <h3>Adding Deployment Keys</h3>
 
-  <p>Deployment keys are quite straight forward to add. Go to the main project view, then on the far right will be the deployment keys button, Click that and paste in the key. For Jenkins, The key name should be "Jenkins CI" that way they are simple to differentiate from any other deployment keys in the system</p>.
+  <p>Deployment keys are quite straight forward to add.</p>
+
+  <p>Go to the main project view, then on the far right will be the deployment keys button, Click that and paste in the key. For Jenkins, The key name should be "Jenkins CI" that way they are simple to differentiate from any other deployment keys in the system</p>.
 </body>
 </html>
