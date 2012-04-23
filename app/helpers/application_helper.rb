@@ -11,6 +11,14 @@ module ApplicationHelper
     true
   end
 
+  def request_protocol
+    request.ssl? ? "https" : "http"
+  end
+
+  def web_app_url
+    "#{request_protocol}://#{GIT_HOST["host"]}/"
+  end
+
   def body_class(default_class = nil)
     main = content_for(:body_class).blank? ?
       default_class :
@@ -64,7 +72,18 @@ module ApplicationHelper
   end
 
   def markdown(text)
-    RDiscount.new(text, :autolink, :no_pseudo_protocols, :safelink, :smart, :filter_html).to_html.html_safe
+    @__renderer ||= Redcarpet::Markdown.new(Redcarpet::Render::GitlabHTML.new(filter_html: true), {
+      no_intra_emphasis: true,
+      tables: true,
+      fenced_code_blocks: true,
+      autolink: true,
+      strikethrough: true,
+      lax_html_blocks: true,
+      space_after_headers: true,
+      superscript: true
+    })
+
+    @__renderer.render(text).html_safe
   end
 
   def search_autocomplete_source
@@ -120,5 +139,9 @@ module ApplicationHelper
     else
       "ui_mars"
     end
+  end
+
+  def string_to_utf8 str
+    Gitlabhq::Encode.utf8 str
   end
 end

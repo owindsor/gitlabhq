@@ -1,4 +1,3 @@
-EMAIL_OPTS = YAML.load_file("#{Rails.root}/config/gitlab.yml")["email"]
 # Use this hook to configure devise mailer, warden hooks and so forth. The first
 # four configuration values can also be set straight in your models.
 Devise.setup do |config|
@@ -196,18 +195,9 @@ Devise.setup do |config|
   config.sign_out_via = :delete
 
   # ==> OmniAuth
-  # Add a new OmniAuth provider. Check the wiki for more information on setting
-  # up on your models and hooks.
-  # config.omniauth :github, 'APP_ID', 'APP_SECRET', :scope => 'user,public_repo'
-
-  #config.omniauth :ldap,
-  #    :host => 'YOUR_LDAP_SERVER',
-  #    :base => 'THE_BASE_WHERE_YOU_SEARCH_FOR_USERS',
-  #    :uid => 'sAMAccountName',
-  #    :port => 389,
-  #    :method => :plain,
-  #    :bind_dn => 'THE_FULL_DN_OF_THE_USER_YOU_WILL_BIND_WITH',
-  #    :password => 'THE_PASSWORD_OF_THE_BIND_USER'
+  # To configure a new OmniAuth provider copy and edit omniauth.rb.sample
+  # selecting the provider you require.
+  # Check the wiki for more information on setting up on your models
 
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or

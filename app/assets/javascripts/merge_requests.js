@@ -1,25 +1,35 @@
 var MergeRequest = { 
   diffs_loaded: false,
   commits_loaded: false,
+  opts: false,
 
   init:
-    function() { 
-      $(".tabs a").live("click", function() { 
-        $(".tabs a").parent().removeClass("active");
+    function(opts) {
+      this.opts = opts;
+
+      if($(".automerge_widget").length){
+        $.get(opts.url_to_automerge_check, function(data){
+          $(".automerge_widget").hide();
+          $(".automerge_widget." + data.state).show();
+        }, "json");
+      }
+
+      $(".nav-tabs a").live("click", function() { 
+        $(".nav-tabs a").parent().removeClass("active");
         $(this).parent().addClass("active");
       });
 
-      $(".tabs a.merge-notes-tab").live("click", function(e) { 
+      $(".nav-tabs a.merge-notes-tab").live("click", function(e) { 
         $(".merge-request-diffs").hide();
-        $(".merge-request-notes").show();
+        $(".merge_request_notes").show();
         e.preventDefault();
       });
 
-      $(".tabs a.merge-diffs-tab").live("click", function(e) { 
+      $(".nav-tabs a.merge-diffs-tab").live("click", function(e) { 
         if(!MergeRequest.diffs_loaded) { 
           MergeRequest.loadDiff(); 
         }
-        $(".merge-request-notes").hide();
+        $(".merge_request_notes").hide();
         $(".merge-request-diffs").show();
         e.preventDefault();
       });
@@ -31,10 +41,24 @@ var MergeRequest = {
       $.ajax({
         type: "GET",
         url: $(".merge-diffs-tab").attr("data-url"),
+        beforeSend: function(){ $('.status').addClass("loading")},
         complete: function(){ 
           MergeRequest.diffs_loaded = true;
-          $(".merge-request-notes").hide();
-          $(".dashboard-loader").hide()},
+          $(".merge_request_notes").hide();
+          $('.status').removeClass("loading");
+        },
         dataType: "script"});
+    }, 
+
+  showAllCommits: 
+    function() { 
+      $(".first_mr_commits").remove();
+      $(".all_mr_commits").removeClass("hide");
+    },
+
+  already_cannot_be_merged:
+    function(){
+        $(".automerge_widget").hide();
+        $(".automerge_widget.already_cannot_be_merged").show();
     }
 }

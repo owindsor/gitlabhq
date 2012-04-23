@@ -1,5 +1,6 @@
 class Issue < ActiveRecord::Base
   belongs_to :project
+  belongs_to :milestone
   belongs_to :author, :class_name => "User"
   belongs_to :assignee, :class_name => "User"
   has_many :notes, :as => :noteable, :dependent => :destroy
@@ -24,6 +25,9 @@ class Issue < ActiveRecord::Base
   validates :title,
             :presence => true,
             :length   => { :within => 0..255 }
+            
+  validates :description,
+            :length   => { :within => 0..2000 }
 
   scope :critical, where(:critical => true)
   scope :non_critical, where(:critical => false)
@@ -38,12 +42,21 @@ class Issue < ActiveRecord::Base
     opened.assigned(user)
   end
 
+  def self.search query
+    where("title like :query", :query => "%#{query}%")
+  end
+
   def today?
     Date.today == created_at.to_date
   end
 
   def new?
     today? && created_at == updated_at
+  end
+
+  # Return the number of +1 comments (upvotes)
+  def upvotes
+    notes.select(&:upvote?).size
   end
 end
 # == Schema Information
@@ -52,6 +65,7 @@ end
 #
 #  id          :integer         not null, primary key
 #  title       :string(255)
+#  description :text
 #  assignee_id :integer
 #  author_id   :integer
 #  project_id  :integer

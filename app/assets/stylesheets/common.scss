@@ -1,111 +1,18 @@
-a {
-  outline: none;
-  color: $link_color;
-  &:hover { 
-    text-decoration:none; 
-    color: $style_color;
-  }
-
-  &.btn { 
-    color: $style_color;
-  }
-}
-
-a:focus { 
-  outline: none; 
-}
-
-.vlink { 
-  color: $link_color !important;
-}
-
-.pills a:hover { 
-  background-color:#ccc;
-}
-
-.pills .active a {
-  background-color: #aaa;
-}
-
-.label { 
-  background-color: #474D57;
-}
-
-.tabs > li > a, .pills > li > a {
-  color:$style_color;
-}
-
 .diff_file_header a,
 .file_stats a {
   color:$style_color;
 }
 
-/** COLORS **/
-.cgray { color:gray; }
-.cred { color:#D12F19; }
-.cgreen { color:#44aa22; }
-.cblack { color:#111; }
-.cwhite { color:#fff !important }
-
-/** COMMON STYLES **/
-.left {
-  float:left;
-}
-.right {
-  float:right !important;
-}
-.width-50p{
-  width:50%;
-}
-.width-49p{
-  width:49%;
-}
-.width-30p{
-  width:30%;
-}
-.width-65p{
-  width:65%;
-}
-.width-100p{
-  width:100%;
-}
-.append-bottom-10 {
-  margin-bottom:10px;
-}
-.append-bottom-20 {
-  margin-bottom:20px;
-}
-.prepend-top-10 {
-  margin-top:10px;
-}
-
-.padded { 
-  padding:20px;
-}
-.no-borders { 
-  border:none;
-}
-table.no-borders { 
-  border:none;
-  tr, td { border:none }
-}
-.no-padding { 
-  padding:0 !important;
-}
-.underlined { 
-  border-bottom: 1px solid $border_color;
-}
 
 /** LAYOUT **/
 
 .container { 
-  width:$min_app_width;
   padding-top:0;
   z-index:5;
 }
 
 .container .content { 
-  margin:0 $app_padding;
+  margin:0 0;
 }
 
 .container  .sidebar { 
@@ -133,7 +40,7 @@ header {
     cursor: pointer;
     img {
       border-radius: 4px;
-      right: 20px;
+      right: 0px;
       position: absolute;
       width: 33px;
       height: 33px;
@@ -192,7 +99,7 @@ header {
     border-radius: 5px;
     width: 100px;
     position: absolute;
-    right: 20px;
+    right: 10px;
     top: 46px;
     margin-top: 0;
     float: right;
@@ -240,7 +147,7 @@ header {
 nav.main_menu { 
   border-radius: 4px;
   margin: auto;
-  margin:30px $app_padding;
+  margin:30px 0;
   background:#eee;
   border:1px solid #bbb;
   height:38px;
@@ -250,8 +157,8 @@ nav.main_menu {
   background-image: -o-linear-gradient(#eee 6.6%, #dfdfdf);
   @include shade;
   .count { 
-    color:#aaa;
-    margin-left:3px;  
+    margin-left:3px;
+    color: #aaa;
   }
   .label { 
     background:$hover;
@@ -259,6 +166,14 @@ nav.main_menu {
     color:$style_color;
   }
   a { 
+    // Landscape phone to portrait tablet
+    @media (max-width: 1080px) { min-width:35px; }
+    // Portrait tablet to landscape and desktop
+    @media (min-width: 1080px) and (max-width: 1200px) { min-width:40px; }
+    // Large desktop
+    @media (min-width: 1200px) { min-width:55px; }
+
+    text-align:center;
     font-weight:bold;
     &:first-child{ 
       -webkit-border-top-left-radius: 4px;
@@ -278,7 +193,7 @@ nav.main_menu {
     &.home { 
       background: url(home_icon.PNG) no-repeat center center;
       text-indent:-9999px;
-      min-width:40px;
+      //min-width:40px;
       img { 
         position:relative;
         top:4px;
@@ -298,89 +213,22 @@ nav.main_menu {
  *
  */
 
-
-
-img.avatar { 
+.profile_avatar_holder { 
   float:left;
-  margin-right:15px;
-  width:40px;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-}
-
-img.lil_av { 
-  padding-left: 5px;
-  position: relative;
-  top: 3px;
-}
-
-.media-grid { 
-  h3, h2 , h4 {
-    &.media_h { 
-      padding-left:10px;
-      float:left;
-    }
+  width:60px;
+  height:60px;
+  margin-right:20px;
+  img { 
+    width:60px;
+    height:60px;
+    background:#eee;
   }
 }
 
-.wll { 
-  background-color: #FFF;
-  padding: 10px 5px;
-  min-height: 20px;
-  border-bottom: 1px solid #eee;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  cursor:pointer;
-  &:hover { 
-    background:$hover;
-  }
-  &:last-child { border:none }
-  p { padding-top:5px; margin:0; color:$style_color;}
-  .author { color: #999; }
-  p { 
-    color:#222;
-    margin-bottom: 0;
-    img { 
-      position:relative;
-      top:3px;
-    }
-  }
-}
 
 .visible_link,
 .author_link { 
   color: $link_color;
-}
-.entry { 
-  position: relative;
-  padding: 7px 15px;
-  margin-bottom: 18px;
-  color: #404040;
-  filter:none;
-
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
-
-  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
-
-  background:#F1F1F1;
-  border: 1px solid #ccc;
-
-
-  p { 
-    color:$style_color;
-    margin-bottom: 0;
-    img { 
-      position:relative;
-      top:3px;
-    }
-  }
 }
 
 .widget { 
@@ -407,68 +255,6 @@ img.lil_av {
   }
 }
 
-
-.ui-box { 
-  margin-bottom: 40px;
-  @include round-borders-all(4px);
-  @include shade;
-  border-color:#ddd;
-
-  ul { 
-    margin:0;
-  }
-
-  h5, .title { 
-    padding: 0 10px;
-    background:#f5f5f5;
-    border-bottom: 1px solid #eee;
-    @include round-borders-top(4px);
-    border-top:none;
-
-    form { 
-      padding-top:16px;
-    }
-  }
-
-  &.padded { 
-    h5, .title { 
-      margin: -20px;
-      margin-bottom: 0;
-      padding: 5px 20px;
-    }
-    .middle_title { 
-      background:#f5f5f5;
-      margin:20px -20px;
-      padding: 0 20px;
-      border-top:1px solid #eee;
-      border-bottom:1px solid #eee;
-      font-size:14px;
-      color:#777;
-    }
-  }
-  .row_title { 
-    font-weight:bold;
-    color:#444;
-    &:hover { 
-      text-decoration:underline;
-    }
-  }
-
-  li, .wll {
-    padding:10px;
-    &:first-child { 
-      @include round-borders-top(4px);
-      border-top:none;
-    }
-
-    &:last-child { 
-      @include round-borders-bottom(4px);
-      border:none;
-    }
-  }
-
-}
-
 .help li { color:#111 } 
 
 .back_link { 
@@ -488,11 +274,6 @@ img.lil_av {
   }
 }
 
-.borders { 
-  border: 1px solid #ccc;
-  @include shade;
-}
-
 .download_repo_link { 
   background: url("images.png") no-repeat 0 -48px;
   padding-left:20px;
@@ -504,7 +285,7 @@ img.lil_av {
   background: rgba(0,0,0,.12); 
   text-align: center; 
   padding: 2px 4px; 
-  line-height:20px;
+  line-height:18px;
   margin-left:2px;
 }
 
@@ -520,11 +301,12 @@ table a code {
 
 .btn.padded { 
   margin-right:3px;
+  padding:4px 10px 4px;
 }
 
 .loading { 
   margin:20px auto;
-  background: url(ajax-loader-facebook.gif) no-repeat center center;
+  background: url(ajax_loader.gif) no-repeat center center;
   width:40px;
   height:40px;
 }
@@ -623,13 +405,7 @@ a.project-update.titled {
 
 
 input.git_clone_url { 
-  width:475px;
-}
-
-.team_member_row { 
-  img { 
-    width:60px;
-  }
+  width:325px;
 }
 
 .merge-request-form-holder {
@@ -678,8 +454,8 @@ input.git_clone_url {
     background:#eee;
     text-align:center;
     img {
-      padding:100px;
-      max-width:300px;
+      padding:50px;
+      max-width:400px;
     }
   }
 }
@@ -777,7 +553,7 @@ li.commit {
   }
 
   code { 
-    padding:4px;
+    padding:0px;
   }
 }
 p.time {
@@ -787,30 +563,33 @@ p.time {
 }
 
 
+/** 
+ * Dashboard page
+ * 
+ */
 .dashboard_category { 
   margin-bottom:30px;
-
-
-
   h3 a { 
     color:#474D57;
-
     &:hover { 
       text-decoration:underline;
     }
   }
+
   .dashboard_block { 
-    width:840px;
-    margin:auto;
-
-    .wll { 
-      padding:5px;
-      margin-top:5px;
+    .dash_project_item { 
+      margin-bottom:10px;
       border:none;
-      &:hover { 
-        background:none;
+      padding:0px 5px;
+      .project_link {
+        color:#888;
+        &:hover {
+          color:#111;
+          .ico.project { 
+            background-position:-209px -21px;
+          }
+        }
       }
-
       h4 {
         color:#666;
       }
@@ -829,7 +608,7 @@ p.time {
 
 .event_feed { 
   min-height:40px;
-  border-bottom:1px solid #eee;
+  border-bottom:1px solid #ddd;
   .avatar { 
     width:32px;
   }
@@ -841,9 +620,7 @@ p.time {
     }
   }
 
-  padding: 10px 5px;
-  border-bottom: 1px solid #eee;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 15px 5px;
   &:last-child { border:none }
   .wll:hover { background:none }
 }
@@ -870,7 +647,6 @@ p.time {
 }
 
 .leftbar { 
-
   h5, .title { 
     padding:5px 10px;
   }
@@ -883,21 +659,24 @@ p.time {
   }
   a:last-child h4 { border:none; }
 
-  a.active { 
+  a:hover { 
     h4 {
       color:#111;
-      border-right:4px solid $styled_border_color;
+      background:$hover;
       .ico.project { 
         background-position:-209px -21px;
       }
     }
+  }
+  .bottom { 
+    padding:10px;
   }
 }
 
 .btn { 
   &.very_small { 
     font-size:11px;
-    padding:4px;
+    padding:2px 6px;
     margin:2px;
   }
 }
@@ -925,4 +704,219 @@ p.time {
 .hint {
   font-style: italic;
   color: #999;
+}
+
+.upvotes {
+  font-size: 14px;
+  font-weight: bold;
+  color: #468847;
+  text-align: right;
+  padding: 4px;
+  margin: 2px;
+}
+
+/* Fix for readme code (stopped it from being yellow) */
+.readme {
+  pre {
+    background: white !important;
+    
+    code {
+      background: none !important;
+    }
+  }
+}
+
+/**
+ *  UI box element 
+ *  contains top, middle, bottom blocks
+ * 
+ */
+.main_box { 
+  @extend .borders;
+  @extend .prepend-top-20;
+  @extend .append-bottom-20;
+  border-width:1px;
+
+  img { max-width: 100%; }
+
+  pre {
+    code {
+      background: none !important;
+    }
+  }
+
+  .top_box_content, 
+  .middle_box_content, 
+  .bottom_box_content { 
+    padding:15px;
+
+    pre {
+      background: none !important;
+      margin:0;
+      border:none;
+      padding:0;
+    }
+  }
+
+  .middle_box_content { 
+    border-radius:0;
+    border:none;
+    font-size:12px;
+    background-color:#f5f5f5;
+    border:none;
+    border-top:1px solid #eee;
+  }
+
+  .bottom_box_content { 
+    border-top:1px solid #eee;
+  }
+}
+
+.highlight_word { 
+  background:#EEDC94;
+}
+
+.status_info { 
+  font-size:14px;
+  padding:5px 15px;
+  line-height:24px;
+  width:60px;
+  text-align:center;
+  float:left;
+  margin-right:20px;
+}
+
+.arrow{ 
+  background: #E3E5EA;
+  padding: 5px;
+  margin-top:5px;
+  border-radius: 5px;
+  text-shadow: none;
+  color: #999;
+  line-height: 16px;
+  font-weight:bold;
+}
+
+.thin_area{
+  height: 150px;
+}
+
+.gitlab_pagination { 
+  span a { color:$link_color; }
+  .prev, .next, .current, .page a { 
+    padding:10px;
+  }
+  .current { 
+    border-bottom:2px solid $style_color;
+  }
+}
+
+// Fixes alignment on notes.
+.new_note {
+  label {
+    text-align:left;
+  }
+}
+
+.new_note {
+  .input-file {
+    font: 500px monospace;
+    opacity:0;
+    filter: alpha(opacity=0);
+    position: absolute;
+    z-index: 1;
+    top:0;
+    right:0;
+    padding:0;
+    margin: 0;
+  }
+
+  .file_upload {
+    position: absolute;
+    right:14px;
+    top:7px;
+  }
+
+  div.attachments {
+    position:relative;
+    width: 350px;
+    height: 36px;
+    overflow:hidden;
+    margin:0 0 5px !important;
+  }
+  .file_name {
+    line-height:30px;
+    width:240px;
+    height:28px;
+    overflow:hidden;
+  }
+}
+
+// Fix issue with notes & lists creating a bunch of bottom borders.
+li.note {
+  img { max-width:100% }
+  .note-title {
+    li {
+      border-bottom:none !important;
+    }
+    .file {
+      padding-left:20px;
+      background:url("icon-attachment.png") no-repeat left center;
+    }
+  }
+}
+
+.markdown { 
+  img { 
+    max-width:100%;
+  }
+}
+
+.wiki_content code, .readme code{
+  background-color: inherit;
+}
+
+.team_member_show { 
+  td:first-child { 
+    color:#aaa;
+  }
+}
+
+.remember_me { 
+  text-align:left;
+
+  input { 
+    margin:0;
+  }
+
+  span { 
+    padding-left:5px;
+  }
+}
+
+
+/**
+ * Milestones list
+ *
+ */
+
+.milestone { 
+  @extend .wll;
+}
+
+/**
+ * Admin area
+ *
+ */
+.admin_dash { 
+  .data { 
+    a { 
+      h1 { 
+        line-height:48px;
+        font-size:48px;
+        padding:20px;
+        text-align:center;
+      }
+    }
+  }
 }

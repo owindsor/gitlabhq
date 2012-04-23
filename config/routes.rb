@@ -1,30 +1,25 @@
 Gitlab::Application.routes.draw do
-
+  get 'search' => "search#show"
 
   # Optionally, enable Resque here
   require 'resque/server'
   mount Resque::Server.new, at: '/info/resque'
 
   get 'help' => 'help#index'
-  get 'help/getting_started' => 'help#getting_started'
-  get 'help/getting_started_admin' => 'help#getting_started_admin'
   get 'help/permissions' => 'help#permissions'
   get 'help/workflow' => 'help#workflow'
-  get 'help/branch_permissions' => 'help#branch_permissions'
-  get 'help/update_remotes' => 'help#update_remotes'
-  get 'help/git_cheat_sheet' => 'help#git_cheat_sheet'
-  get 'help/merging' => 'help#merging'
-  get 'help/deployment_keys' => 'help#deployment_keys'
-  get 'help/known_issues' => 'help#known_issues'
+  get 'help/web_hooks' => 'help#web_hooks'
 
   namespace :admin do
-    resources :users do
-      member do
+    resources :users do 
+      member do 
         put :team_update
+        put :block
+        put :unblock
       end
     end
-    resources :projects, :constraints => { :id => /[^\/]+/ } do
-      member do
+    resources :projects, :constraints => { :id => /[^\/]+/ } do 
+      member do 
         get :team
         put :team_update
       end
@@ -45,11 +40,11 @@ Gitlab::Application.routes.draw do
   get "profile/design", :to => "profile#design"
   put "profile/update", :to => "profile#update"
 
-  get "dashboard", :to => "dashboard#index"
+ 
   get "dashboard/issues", :to => "dashboard#issues"
   get "dashboard/merge_requests", :to => "dashboard#merge_requests"
 
-  #get "profile/:id", :to => "profile#show"
+
 
   resources :projects, :constraints => { :id => /[^\/]+/ }, :only => [:new, :create, :index]
   resources :keys
@@ -66,12 +61,12 @@ Gitlab::Application.routes.draw do
 
     resources :wikis, :only => [:show, :edit, :destroy, :create] do
       member do
-        get "history"
+        get "history"        
       end
     end
 
-    resource :repository do
-      member do
+    resource :repository do 
+      member do 
         get "branches"
         get "tags"
         get "archive"
@@ -81,14 +76,14 @@ Gitlab::Application.routes.draw do
     resources :deploy_keys
     resources :protected_branches, :only => [:index, :create, :destroy]
 
-    resources :refs, :only => [], :path => "/" do
-      collection do
+    resources :refs, :only => [], :path => "/" do 
+      collection do 
         get "switch"
       end
 
-      member do
+      member do 
         get "tree", :constraints => { :id => /[a-zA-Z.\/0-9_\-]+/ }
-        get "blob",
+        get "blob", 
           :constraints => {
             :id => /[a-zA-Z.0-9\/_\-]+/,
             :path => /.*/
@@ -105,9 +100,11 @@ Gitlab::Application.routes.draw do
       end
     end
 
-    resources :merge_requests do
-      member do
+    resources :merge_requests do 
+      member do 
         get :diffs
+        get :automerge
+        get :automerge_check
       end
 
       collection do 
@@ -115,19 +112,20 @@ Gitlab::Application.routes.draw do
         get :branch_to
       end
     end
-
+    
     resources :snippets
-    resources :hooks, :only => [:index, :new, :create, :destroy, :show] do
-      member do
+    resources :hooks, :only => [:index, :new, :create, :destroy, :show] do 
+      member do 
         get :test
       end
     end
-    resources :commits do
-      collection do
+    resources :commits do 
+      collection do 
         get :compare
       end
     end
     resources :team_members
+    resources :milestones
     resources :issues do
       collection do
         post  :sort
@@ -136,5 +134,5 @@ Gitlab::Application.routes.draw do
     end
     resources :notes, :only => [:index, :create, :destroy]
   end
-  root :to => "dashboard#index"
+  root :to => "projects#index"
 end

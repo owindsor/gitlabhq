@@ -29,14 +29,22 @@ class CommitsController < ApplicationController
 
     git_not_found! and return unless @commit
 
+    @commit = CommitDecorator.decorate(@commit)
+
     @note = @project.build_commit_note(@commit)
     @comments_allowed = true
     @line_notes = project.commit_line_notes(@commit)
+
+    @notes_count = @line_notes.count + project.commit_notes(@commit).count
+
+    if @commit.diffs.size > 200 && !params[:force_show_diff]
+      @suppress_diff = true 
+    end
   end
 
   def compare
-    first = project.commit(params[:to])
-    last = project.commit(params[:from])
+    first = project.commit(params[:to].try(:strip))
+    last = project.commit(params[:from].try(:strip))
 
     @diffs = []
     @commits = []

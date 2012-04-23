@@ -64,12 +64,19 @@ Factory.add(:web_hook, WebHook) do |obj|
   obj.url = Faker::Internet.url
 end
 
-Factory.add(:wikis, WebHook) do |obj|
+Factory.add(:wiki, Wiki) do |obj|
   obj.title = Faker::Lorem.sentence
   obj.content = Faker::Lorem.sentence
+  obj.user = Factory(:user)
+  obj.project = Factory(:project)
 end
 
 Factory.add(:event, Event) do |obj|
   obj.title = Faker::Lorem.sentence
   obj.project = Factory(:project)
+end
+
+Factory.add(:milestone, Milestone) do |obj|
+  obj.title = Faker::Lorem.sentence
+  obj.due_date = Date.today + 1.month
 end
