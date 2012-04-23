@@ -6,10 +6,20 @@ Gitlab::Application.routes.draw do
   mount Resque::Server.new, at: '/info/resque'
 
   get 'help' => 'help#index'
+  get 'help/getting_started' => 'help#getting_started'
+  get 'help/getting_started_admin' => 'help#getting_started_admin'
   get 'help/permissions' => 'help#permissions'
   get 'help/workflow' => 'help#workflow'
-  get 'help/web_hooks' => 'help#web_hooks'
 
+  get 'help/branch_permissions' => 'help#branch_permissions'
+  get 'help/update_remotes' => 'help#update_remotes'
+  get 'help/git_cheat_sheet' => 'help#git_cheat_sheet'
+  get 'help/merging' => 'help#merging'
+  get 'help/deployment_keys' => 'help#deployment_keys'
+  get 'help/known_issues' => 'help#known_issues'
+
+  get 'help/web_hooks' => 'help#web_hooks'
+  
   namespace :admin do
     resources :users do 
       member do 
