@@ -1,11 +1,11 @@
 source "http://rubygems.org"
 
-gem "rails", "3.2.1"
+gem "rails", "3.2.3"
 
 gem "sqlite3"
 gem "mysql2"
 gem "rake"
-gem "devise"
+gem "devise", "~> 1.5"
 gem "stamp"
 gem "kaminari"
 gem "haml", "3.1.4"
@@ -32,14 +32,15 @@ gem "httparty"
 gem "charlock_holmes"
 gem "foreman"
 gem "omniauth-ldap"
-gem 'bootstrap-sass', "2.0.2"
+gem 'bootstrap-sass', "2.0.3"
 gem "colored"
 gem 'yaml_db', :git => "https://github.com/gitlabhq/yaml_db.git"
 gem 'modularity'
+gem 'resque_mailer'
 
 group :assets do
   gem "sass-rails",   "3.2.3"
-  gem "coffee-rails", "3.2.1"
+  gem "coffee-rails", "3.2.2"
   gem "uglifier",     "1.0.3"
 end
 
@@ -65,4 +66,5 @@ group :test do
   gem "turn", :require => false
   gem "simplecov", :require => false
   gem "shoulda", "3.0.1"
+  gem 'email_spec'
 end
