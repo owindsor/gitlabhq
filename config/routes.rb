@@ -1,10 +1,16 @@
 Gitlab::Application.routes.draw do
+  #
+  # Search
+  #
   get 'search' => "search#show"
 
   # Optionally, enable Resque here
   require 'resque/server'
   mount Resque::Server.new, at: '/info/resque'
 
+  #
+  # Help
+  #
   get 'help' => 'help#index'
   get 'help/getting_started' => 'help#getting_started'
   get 'help/getting_started_admin' => 'help#getting_started_admin'
@@ -19,7 +25,10 @@ Gitlab::Application.routes.draw do
   get 'help/known_issues' => 'help#known_issues'
 
   get 'help/web_hooks' => 'help#web_hooks'
-  
+
+  #
+  # Admin Area
+  #
   namespace :admin do
     resources :users do 
       member do 
@@ -43,6 +52,10 @@ Gitlab::Application.routes.draw do
   end
 
   get "errors/githost"
+
+  #
+  # Profile Area
+  #
   get "profile/password", :to => "profile#password"
   put "profile/password", :to => "profile#password_update"
   get "profile/token", :to => "profile#token"
@@ -50,18 +63,22 @@ Gitlab::Application.routes.draw do
   get "profile", :to => "profile#show"
   get "profile/design", :to => "profile#design"
   put "profile/update", :to => "profile#update"
+  resources :keys
 
- 
+  #
+  # Dashboard Area
+  #
+  get "dashboard", :to => "dashboard#index"
   get "dashboard/issues", :to => "dashboard#issues"
   get "dashboard/merge_requests", :to => "dashboard#merge_requests"
 
-
-
-  resources :projects, :constraints => { :id => /[^\/]+/ }, :only => [:new, :create, :index]
-  resources :keys
+  resources :projects, :constraints => { :id => /[^\/]+/ }, :only => [:new, :create]
 
   devise_for :users, :controllers => { :omniauth_callbacks => :omniauth_callbacks }
 
+  #
+  # Project Area
+  #
   resources :projects, :constraints => { :id => /[^\/]+/ }, :except => [:new, :create, :index], :path => "/" do
     member do
       get "team"
@@ -132,7 +149,12 @@ Gitlab::Application.routes.draw do
       end
     end
     
-    resources :snippets
+    resources :snippets do 
+      member do 
+        get "raw"
+      end
+    end
+
     resources :hooks, :only => [:index, :create, :destroy] do 
       member do 
         get :test
@@ -153,5 +175,5 @@ Gitlab::Application.routes.draw do
     end
     resources :notes, :only => [:index, :create, :destroy]
   end
-  root :to => "projects#index"
+  root :to => "dashboard#index"
 end

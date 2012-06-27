@@ -1,6 +1,8 @@
 require File.join(Rails.root, "app/models/commit")
 
 class MergeRequest < ActiveRecord::Base
+  include Upvote
+
   UNCHECKED = 1
   CAN_BE_MERGED = 2
   CANNOT_BE_MERGED = 3
@@ -14,7 +16,8 @@ class MergeRequest < ActiveRecord::Base
   serialize :st_diffs
 
   attr_protected :author, :author_id, :project, :project_id
-  attr_accessor :author_id_of_changes
+  attr_accessor :author_id_of_changes,
+                :should_remove_source_branch
 
   validates_presence_of :project_id
   validates_presence_of :assignee_id
@@ -90,6 +93,10 @@ class MergeRequest < ActiveRecord::Base
     self.save
   end
 
+  def today?
+    Date.today == created_at.to_date
+  end
+
   def new?
     today? && created_at == updated_at
   end
@@ -125,12 +132,6 @@ class MergeRequest < ActiveRecord::Base
 
   def closed_event
     self.project.events.where(:target_id => self.id, :target_type => "MergeRequest", :action => Event::Closed).last
-  end
-
-
-  # Return the number of +1 comments (upvotes)
-  def upvotes
-    notes.select(&:upvote?).size
   end
 
   def commits
@@ -188,7 +189,7 @@ class MergeRequest < ActiveRecord::Base
       self.merge!(current_user.id)
       true
     end
-  rescue 
+  rescue
     self.mark_as_unmergable
     false
   end
@@ -197,15 +198,19 @@ end
 #
 # Table name: merge_requests
 #
-#  id            :integer         not null, primary key
+#  id            :integer(4)      not null, primary key
 #  target_branch :string(255)     not null
 #  source_branch :string(255)     not null
-#  project_id    :integer         not null
-#  author_id     :integer
-#  assignee_id   :integer
+#  project_id    :integer(4)      not null
+#  author_id     :integer(4)
+#  assignee_id   :integer(4)
 #  title         :string(255)
-#  closed        :boolean         default(FALSE), not null
-#  created_at    :datetime
-#  updated_at    :datetime
+#  closed        :boolean(1)      default(FALSE), not null
+#  created_at    :datetime        not null
+#  updated_at    :datetime        not null
+#  st_commits    :text(2147483647
+#  st_diffs      :text(2147483647
+#  merged        :boolean(1)      default(FALSE), not null
+#  state         :integer(4)      default(1), not null
 #
 

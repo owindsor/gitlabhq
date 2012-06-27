@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  include Account
+
   devise :database_authenticatable, :token_authenticatable,
          :recoverable, :rememberable, :trackable, :validatable, :omniauthable
 
@@ -65,30 +67,6 @@ class User < ActiveRecord::Base
     where('id NOT IN (SELECT DISTINCT(user_id) FROM users_projects)')
   end
 
-  def identifier
-    email.gsub /[@.]/, "_"
-  end
-
-  def is_admin?
-    admin
-  end
-
-  def require_ssh_key?
-    keys.count == 0
-  end
-
-  def can_create_project?
-    projects_limit > my_own_projects.count
-  end
-
-  def last_activity_project
-    projects.first
-  end
-
-  def first_name
-    name.split.first unless name.blank?
-  end
-
   def self.find_for_ldap_auth(omniauth_info)
     name = omniauth_info.name.force_encoding("utf-8")
     email = omniauth_info.email.downcase
@@ -106,53 +84,37 @@ class User < ActiveRecord::Base
     end
   end
 
-  def cared_merge_requests
-    MergeRequest.where("author_id = :id or assignee_id = :id", :id => self.id).opened
-  end
-
-  def project_ids
-    projects.map(&:id)
-  end
-
-  # Remove user from all projects and
-  # set blocked attribute to true
-  def block
-    users_projects.all.each do |membership|
-      return false unless membership.destroy
-    end
-
-    self.blocked = true
-    save
-  end
-
-  def projects_limit_percent
-    return 100 if projects_limit.zero?
-    (my_own_projects.count.to_f / projects_limit) * 100
+  def self.search query
+    where("name like :query or email like :query", :query => "%#{query}%")
   end
 end
 # == Schema Information
 #
 # Table name: users
 #
-#  id                     :integer         not null, primary key
+#  id                     :integer(4)      not null, primary key
 #  email                  :string(255)     default(""), not null
 #  encrypted_password     :string(128)     default(""), not null
 #  reset_password_token   :string(255)
 #  reset_password_sent_at :datetime
 #  remember_created_at    :datetime
-#  sign_in_count          :integer         default(0)
+#  sign_in_count          :integer(4)      default(0)
 #  current_sign_in_at     :datetime
 #  last_sign_in_at        :datetime
 #  current_sign_in_ip     :string(255)
 #  last_sign_in_ip        :string(255)
-#  created_at             :datetime
-#  updated_at             :datetime
+#  created_at             :datetime        not null
+#  updated_at             :datetime        not null
 #  name                   :string(255)
-#  admin                  :boolean         default(FALSE), not null
-#  projects_limit         :integer         default(10)
+#  admin                  :boolean(1)      default(FALSE), not null
+#  projects_limit         :integer(4)      default(10)
 #  skype                  :string(255)     default(""), not null
 #  linkedin               :string(255)     default(""), not null
 #  twitter                :string(255)     default(""), not null
 #  authentication_token   :string(255)
-#  dark_scheme            :boolean         default(FALSE), not null
+#  dark_scheme            :boolean(1)      default(FALSE), not null
+#  theme_id               :integer(4)      default(1), not null
+#  bio                    :string(255)
+#  blocked                :boolean(1)      default(FALSE), not null
 #
+
