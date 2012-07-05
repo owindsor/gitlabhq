@@ -1,7 +1,10 @@
-%h3.cgray
+%h3.page_title
   GITLAB
-  %span.right v2.6
+  .right
+    %span= Gitlab::Version
+    %small= Gitlab::Revision
 %hr
+%p.lead
 %h4 Silverstripe Australia Self Hosted Git repositories
 
 %hr
@@ -21,6 +24,8 @@
     = link_to "Update Remotes", help_update_remotes_path
   %li
     = link_to "Merging Changes", help_merging_path
+  %li
+    %h5= link_to "Web Hooks", help_web_hooks_path
 
 %h5 Administrator Help
 %ol

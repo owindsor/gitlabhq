@@ -15,8 +15,10 @@ gem "gitolite",      :git => "https://github.com/gitlabhq/gitolite-client.git", 
 gem "pygments.rb",   :git => "https://github.com/gitlabhq/pygments.rb.git",     :ref => "2cada028da5054616634a1d9ca6941b65b3ce188"
 gem "omniauth-ldap", :git => "https://github.com/gitlabhq/omniauth-ldap.git",   :ref => "7edf27d0281e09561838122982c16b7e62181f44"
 gem 'yaml_db',       :git => "https://github.com/gitlabhq/yaml_db.git"
+gem 'grack',         :git => "https://github.com/gitlabhq/grack.git"
 gem "linguist", "~> 1.0.0", :git => "https://github.com/gitlabhq/linguist.git"
 
+gem "grape"
 gem "stamp"
 gem "kaminari"
 gem "haml-rails"
@@ -29,7 +31,7 @@ gem "thin"
 gem "unicorn"
 gem "git"
 gem "acts_as_list"
-gem "acts-as-taggable-on", "~> 2.1.0"
+gem "acts-as-taggable-on", "2.3.1"
 gem "drapper"
 gem "resque", "~> 1.20.0"
 gem "httparty"
@@ -37,6 +39,8 @@ gem "charlock_holmes"
 gem "foreman"
 gem "colored"
 gem 'resque_mailer'
+gem 'tabs_on_rails'
+gem 'settingslogic'
 
 group :assets do
   gem "sass-rails",   "3.2.5"
