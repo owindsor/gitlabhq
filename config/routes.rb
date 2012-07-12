@@ -35,6 +35,7 @@ Gitlab::Application.routes.draw do
   get 'help/merging' => 'help#merging'
   get 'help/deployment_keys' => 'help#deployment_keys'
   get 'help/known_issues' => 'help#known_issues'
+ get 'help/api' => 'help#api'
 
   get 'help/web_hooks' => 'help#web_hooks'
 
@@ -60,6 +61,8 @@ Gitlab::Application.routes.draw do
     get 'mailer/preview_note'
     get 'mailer/preview_user_new'
     get 'mailer/preview_issue_new'
+
+    resource :logs
     resource :resque, :controller => 'resque'
     root :to => "dashboard#index"
   end
