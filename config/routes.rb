@@ -35,7 +35,7 @@ Gitlab::Application.routes.draw do
   get 'help/merging' => 'help#merging'
   get 'help/deployment_keys' => 'help#deployment_keys'
   get 'help/known_issues' => 'help#known_issues'
- get 'help/api' => 'help#api'
+  get 'help/api' => 'help#api'
 
   get 'help/web_hooks' => 'help#web_hooks'
 

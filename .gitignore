@@ -20,3 +20,5 @@ config/initializers/omniauth.rb
 config/unicorn.rb
 db/data.yml
 *sublime*
+/nbproject*
+
