@@ -60,7 +60,7 @@ Also read the [Read this before you submit an issue](https://github.com/gitlabhq
     sudo apt-get update
     sudo apt-get upgrade
 
-    sudo apt-get install -y wget curl gcc checkinstall libxml2-dev libxslt-dev sqlite3 libsqlite3-dev libcurl4-openssl-dev libreadline-gplv2-dev libc6-dev libssl-dev libmysql++-dev make build-essential zlib1g-dev libicu-dev redis-server openssh-server git-core python-dev python-pip libyaml-dev sendmail
+    sudo apt-get install -y wget curl gcc checkinstall libxml2-dev libxslt-dev sqlite3 libsqlite3-dev libcurl4-openssl-dev libreadline6-dev libc6-dev libssl-dev libmysql++-dev make build-essential zlib1g-dev libicu-dev redis-server openssh-server git-core python-dev python-pip libyaml-dev postfix
     
     # If you want to use MySQL:
     sudo apt-get install -y mysql-server mysql-client libmysqlclient-dev
@@ -110,7 +110,7 @@ Setup:
     sudo -u git sh -c 'echo -e "PATH=\$PATH:/home/git/bin\nexport PATH" >> /home/git/.profile'
     sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; /home/git/gitolite/src/gl-system-install"
     sudo cp /home/gitlab/.ssh/id_rsa.pub /home/git/gitlab.pub
-    sudo chmod 777 /home/git/gitlab.pub
+    sudo chmod 0444 /home/git/gitlab.pub
 
     sudo -u git -H sed -i 's/0077/0007/g' /home/git/share/gitolite/conf/example.gitolite.rc
     sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; gl-setup -q /home/git/gitlab.pub"
@@ -133,12 +133,14 @@ Permissions:
 
 # 4. Install gitlab and configuration. Check status configuration.
 
-    sudo gem install charlock_holmes
+    sudo gem install charlock_holmes --version '0.6.8'
     sudo pip install pygments
     sudo gem install bundler
     cd /home/gitlab
     sudo -H -u gitlab git clone -b stable git://github.com/gitlabhq/gitlabhq.git gitlab
     cd gitlab
+    
+    sudo -u gitlab mkdir tmp
 
     # Rename config files
     sudo -u gitlab cp config/gitlab.yml.example config/gitlab.yml
@@ -150,8 +152,22 @@ Permissions:
 
     # Or 
     # Mysql
+    # Install MySQL as directed in Step #1
+    
+    # Login to MySQL
+    $ mysql -u root -p 
+    
+    # Create the gitlabhq production database
+    mysql> CREATE DATABASE IF NOT EXISTS `gitlabhq_production` DEFAULT CHARACTER SET `utf8` COLLATE `utf8_unicode_ci`;
+    
+    # Create the MySQL User change $password to a real password
+    mysql> CREATE USER 'gitlab'@'localhost' IDENTIFIED BY '$password'; 
+    
+    # Grant proper permissions to the MySQL User
+    mysql> GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON `gitlabhq_production`.* TO 'gitlab'@'localhost';
+    
+    # Exit MySQL Server and copy the example config, make sure to update username/password in config/database.yml
     sudo -u gitlab cp config/database.yml.example config/database.yml
-    # Change username/password of config/database.yml  to real one
 
 #### Install gems
 
@@ -160,6 +176,11 @@ Permissions:
 #### Setup DB
 
     sudo -u gitlab bundle exec rake gitlab:app:setup RAILS_ENV=production
+
+#### Setup gitlab hooks
+
+    sudo cp ./lib/hooks/post-receive /home/git/share/gitolite/hooks/common/post-receive
+    sudo chown git:git /home/git/share/gitolite/hooks/common/post-receive
     
 Checking status:
 
@@ -179,6 +200,7 @@ Checking status:
     Resolving deltas: 100% (174/174), done.
     Can clone gitolite-admin?............YES
     UMASK for .gitolite.rc is 0007? ............YES
+    /home/git/share/gitolite/hooks/common/post-receive exists? ............YES
 
 If you got all YES - congrats! You can go to next step.  
 
@@ -192,14 +214,20 @@ Application can be started with next command:
     # As daemon
     sudo -u gitlab bundle exec rails s -e production -d
 
+You can login via web using admin generated with setup:
+
+    admin@local.host
+    5iveL!fe
+
 #  6. Run resque process (for processing queue).
 
     # Manually
     sudo -u gitlab bundle exec rake environment resque:work QUEUE=* RAILS_ENV=production BACKGROUND=yes
 
     # Gitlab start script
-    ./resque.sh
-
+    sudo -u gitlab ./resque.sh
+    # if you run this as root /home/gitlab/gitlab/tmp/pids/resque_worker.pid will be owned by root
+    # causing the resque worker not to start via init script on next boot/service restart
 
 **Ok - we have a working application now. **
 **But keep going - there are some thing that should be done **
@@ -216,15 +244,15 @@ Application can be started with next command:
     sudo -u gitlab cp config/unicorn.rb.orig config/unicorn.rb
     sudo -u gitlab bundle exec unicorn_rails -c config/unicorn.rb -E production -D
 
-Edit /etc/nginx/nginx.conf. Add in **http** section:
+Edit /etc/nginx/nginx.conf. In the *http* section add:
 
     upstream gitlab {
         server unix:/home/gitlab/gitlab/tmp/sockets/gitlab.socket;
     }
 
     server {
-        listen YOUR_SERVER_IP:80;
-        server_name gitlab.YOUR_DOMAIN.com;
+        listen YOUR_SERVER_IP:80;         # e.g., listen 192.168.1.1:80;
+        server_name YOUR_SERVER_FQDN;     # e.g., server_name source.example.com;
         root /home/gitlab/gitlab/public;
         
         # individual nginx logs for this gitlab vhost
@@ -232,26 +260,26 @@ Edit /etc/nginx/nginx.conf. Add in **http** section:
         error_log   /var/log/nginx/gitlab_error.log;
         
         location / {
-        # serve static files from defined root folder;.
-        # @gitlab is a named location for the upstream fallback, see below
-        try_files $uri $uri/index.html $uri.html @gitlab;
+            # serve static files from defined root folder;.
+            # @gitlab is a named location for the upstream fallback, see below
+            try_files $uri $uri/index.html $uri.html @gitlab;
         }
         
         # if a file, which is not found in the root folder is requested, 
         # then the proxy pass the request to the upsteam (gitlab unicorn)
         location @gitlab {
           proxy_redirect     off;
+          
           # you need to change this to "https", if you set "ssl" directive to "on"
           proxy_set_header   X-FORWARDED_PROTO http;
-          proxy_set_header   Host              gitlab.YOUR_SUBDOMAIN.com:80;
+          proxy_set_header   Host              $http_host;
           proxy_set_header   X-Real-IP         $remote_addr;
         
           proxy_pass http://gitlab;
         }
-
     }
 
-gitlab.YOUR_DOMAIN.com - change to your domain.
+Change **YOUR_SERVER_IP** and **YOUR_SERVER_FQDN** to the IP address and fully-qualified domain name of the host serving GitLab.
 
 Restart nginx:
 
@@ -299,13 +327,11 @@ Create init script in /etc/init.d/gitlab:
       restart)
             echo -n "Restarting $DESC: "
             kill -USR2 `cat $PID`
-            kill -USR2 `cat $RESQUE_PID`
             echo "$NAME."
             ;;
       reload)
             echo -n "Reloading $DESC configuration: "
             kill -HUP `cat $PID`
-            kill -HUP `cat $RESQUE_PID`
             echo "$NAME."
             ;;
       *)

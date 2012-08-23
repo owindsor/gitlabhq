@@ -5,41 +5,32 @@
     %small= Gitlab::Revision
 %hr
 %p.lead
-%h4 Silverstripe Australia Self Hosted Git repositories
+  Self Hosted Git Management
+  %br
+  Fast, secure and stable solution based on Ruby on Rails & Gitolite.
 
 %hr
 
-%h5 User Help
+%h3 Help
 
 %ol
   %li
-    = link_to "Getting Started", help_getting_started_path
+    %h5= link_to "Workflow", help_workflow_path
+
   %li
-    = link_to "Workflow", help_workflow_path
-  %li
-    = link_to "Permissions", help_permissions_path
-  %li
-    = link_to "Git Cheat Sheet", help_git_cheat_sheet_path
-  %li
-    = link_to "Update Remotes", help_update_remotes_path
-  %li
-    = link_to "Merging Changes", help_merging_path
+    %h5= link_to "Permissions", help_permissions_path
+
   %li
     %h5= link_to "Web Hooks", help_web_hooks_path
+
+  %li
+    %h5= link_to "System Hooks", help_system_hooks_path
+
   %li
     %h5= link_to "API", help_api_path
 
-%h5 Administrator Help
-%ol
   %li
-    = link_to "Getting Started - Administrators", help_getting_started_admin_path
-  %li
-    = link_to "Applying Branch Permissions", help_branch_permissions_path
-  %li
-    = link_to "Deployment Keys", help_deployment_keys_path
+    %h5= link_to "Gitlab Markdown", help_markdown_path
 
-%h3 Known Issues
-%ol
   %li
-    = link_to "List of known issues", help_known_issues_path
-
+    %h5= link_to "SSH keys", help_ssh_path
