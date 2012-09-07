@@ -2,53 +2,56 @@ require 'gitolite'
 require 'timeout'
 require 'fileutils'
 
+# TODO: refactor & cleanup 
 module Gitlab
   class Gitolite
     class AccessDenied < StandardError; end
+    class InvalidKey < StandardError; end
 
-    def self.update_project(path, project)
-      self.new.configure { |git| git.update_project(path, project) }
+    def set_key key_id, key_content, projects
+      configure do |c|
+        c.update_keys(key_id, key_content)
+        c.update_projects(projects)
+      end
     end
 
-    def self.destroy_project(project)
-      self.new.configure { |git| git.destroy_project(project) }
+    def remove_key key_id, projects
+      configure do |c|
+        c.delete_key(key_id)
+        c.update_projects(projects)
+      end
     end
 
-    def pull
+    def update_repository project
+      configure do |c|
+        c.update_project(project.path, project)
+      end
+    end
+
+    alias_method :create_repository, :update_repository
+
+    def remove_repository project
+      configure do |c|
+        c.destroy_project(project)
+      end
+    end
+
+    def url_to_repo path
+      Gitlab.config.ssh_path + "#{path}.git"
+    end
+
+    def initialize
       # create tmp dir
       @local_dir = File.join(Rails.root, 'tmp',"gitlabhq-gitolite-#{Time.now.to_i}")
-      Dir.mkdir @local_dir
-
-      `git clone #{GitHost.admin_uri} #{@local_dir}/gitolite`
     end
 
-    def push
-      Dir.chdir(File.join(@local_dir, "gitolite"))
-      `git add -A`
-      `git commit -am "Gitlab"`
-      `git push`
-      Dir.chdir(Rails.root)
-
-      FileUtils.rm_rf(@local_dir)
-    end
-
-    def configure
-      Timeout::timeout(30) do
-        File.open(File.join(Rails.root, 'tmp', "gitlabhq-gitolite.lock"), "w+") do |f|
-          begin 
-            f.flock(File::LOCK_EX)
-            pull
-            yield(self)
-            push
-          ensure
-            f.flock(File::LOCK_UN)
-          end
-        end
+    def enable_automerge
+      configure do |git|
+        git.admin_all_repo
       end
-    rescue Exception => ex
-      Gitlab::Logger.error(ex.message)
-      raise Gitolite::AccessDenied.new("gitolite timeout")
     end
+
+    protected
 
     def destroy_project(project)
       FileUtils.rm_rf(project.path_to_repo)
@@ -106,13 +109,13 @@ module Gitlab
       name_writers = project.repository_writers
       name_masters = project.repository_masters
 
-      pr_br = project.protected_branches.map(&:name).join(" ")
+      pr_br = project.protected_branches.map(&:name).join("$ ")
 
       repo.clean_permissions
 
       # Deny access to protected branches for writers
       unless name_writers.blank? || pr_br.blank?
-        repo.add_permission("-", pr_br, name_writers)
+        repo.add_permission("-", pr_br.strip + "$ ", name_writers)
       end
 
       # Add read permissions
@@ -152,6 +155,48 @@ module Gitlab
       repo.add_permission("RW+", "", owner_name)
       conf.add_repo(repo, true)
       ga_repo.save
+    end
+
+    private
+
+    def pull
+      # create tmp dir
+      @local_dir = File.join(Rails.root, 'tmp',"gitlabhq-gitolite-#{Time.now.to_i}")
+      Dir.mkdir @local_dir
+
+      `git clone #{Gitlab.config.gitolite_admin_uri} #{@local_dir}/gitolite`
+    end
+
+    def push
+      Dir.chdir(File.join(@local_dir, "gitolite"))
+      `git add -A`
+      `git commit -am "GitLab"`
+      `git push`
+      Dir.chdir(Rails.root)
+
+      FileUtils.rm_rf(@local_dir)
+    end
+
+    def configure
+      Timeout::timeout(30) do
+        File.open(File.join(Rails.root, 'tmp', "gitlabhq-gitolite.lock"), "w+") do |f|
+          begin 
+            f.flock(File::LOCK_EX)
+            pull
+            yield(self)
+            push
+          ensure
+            f.flock(File::LOCK_UN)
+          end
+        end
+      end
+    rescue Exception => ex
+      if ex.message =~ /is not a valid SSH key string/
+        raise Gitolite::InvalidKey.new("ssh key is not valid")
+      else
+        Gitlab::Logger.error(ex.message)
+        raise Gitolite::AccessDenied.new("gitolite timeout")
+      end
     end
   end
 end
