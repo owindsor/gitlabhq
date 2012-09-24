@@ -1,22 +1,10 @@
 module ProjectsHelper
-  def view_mode_style(type)
-    cookies["project_view"] ||= "tile"
-    cookies["project_view"] == type ? nil : "display:none"
+  def grouper_project_members(project)
+    @project.users_projects.sort_by(&:project_access).reverse.group_by(&:project_access)
   end
 
-  def load_note_parent(id, type, project)
-    case type
-    when "Issue" then @project.issues.find(id)
-    when "Commit" then @project.repo.commits(id).first
-    when "Snippet" then @project.snippets.find(id)
-    else
-      true
-    end
-  rescue
-    nil
+  def remove_from_team_message(project, member)
+    "You are going to remove #{member.user_name} from #{project.name}. Are you sure?"
   end
-
-  def repository_tab_class
-  end
-
 end
+

@@ -24,4 +24,4 @@ db/data.yml
 /nbproject*
 .idea
 .DS_Store
-
+.chef

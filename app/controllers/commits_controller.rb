@@ -52,6 +52,7 @@ class CommitsController < ApplicationController
     @commits = result[:commits]
     @commit  = result[:commit]
     @diffs   = result[:diffs]
+    @refs_are_same = result[:same]
     @line_notes = []
 
     @commits = CommitDecorator.decorate(@commits)
@@ -64,7 +65,7 @@ class CommitsController < ApplicationController
       @commit.to_patch,
       type: "text/plain",
       disposition: 'attachment',
-      filename: "#{@commit.id.patch}"
+      filename: "#{@commit.id}.patch"
     )
   end
 

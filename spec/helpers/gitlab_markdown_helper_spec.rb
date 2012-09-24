@@ -31,6 +31,7 @@ describe GitlabMarkdownHelper do
     end
 
     it "should not touch HTML entities" do
+      @project.issues.stub(:where).with(id: '39').and_return([issue])
       actual = expected = "We&#39;ll accept good pull requests."
       gfm(actual).should == expected
     end
@@ -208,6 +209,51 @@ describe GitlabMarkdownHelper do
         gfm(actual).should match(expected)
       end
     end
+
+    describe "emoji" do
+      it "matches at the start of a string" do
+        gfm(":+1:").should match(/<img/)
+      end
+
+      it "matches at the end of a string" do
+        gfm("This gets a :-1:").should match(/<img/)
+      end
+
+      it "matches with adjacent text" do
+        gfm("+1 (:+1:)").should match(/<img/)
+      end
+
+      it "has a title attribute" do
+        gfm(":-1:").should match(/title=":-1:"/)
+      end
+
+      it "has an alt attribute" do
+        gfm(":-1:").should match(/alt=":-1:"/)
+      end
+
+      it "has an emoji class" do
+        gfm(":+1:").should match('class="emoji"')
+      end
+
+      it "sets height and width" do
+        actual = gfm(":+1:")
+        actual.should match(/width="20"/)
+        actual.should match(/height="20"/)
+      end
+
+      it "keeps whitespace intact" do
+        gfm("This deserves a :+1: big time.").should match(/deserves a <img.+\/> big time/)
+      end
+
+      it "ignores invalid emoji" do
+        gfm(":invalid-emoji:").should_not match(/<img/)
+      end
+
+      it "should work independet of reference links (i.e. without @project being set)" do
+        @project = nil
+        gfm(":+1:").should match(/<img/)
+      end
+    end
   end
 
   describe "#link_to_gfm" do
@@ -246,11 +292,18 @@ describe GitlabMarkdownHelper do
       actual = link_to_gfm("Fixed in #{commit.id}", commit_path, class: 'foo')
       actual.should have_selector 'a.gfm.gfm-commit.foo'
     end
+
+    it "escapes HTML passed in as the body" do
+      actual = "This is a <h1>test</h1> - see ##{issues[0].id}"
+      link_to_gfm(actual, commit_path).should match('&lt;h1&gt;test&lt;/h1&gt;')
+    end
   end
 
   describe "#markdown" do
     it "should handle references in paragraphs" do
-      markdown("\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. #{commit.id} Nam pulvinar sapien eget odio adipiscing at faucibus orci vestibulum.\n").should == "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. #{link_to commit.id, project_commit_path(project, commit), title: commit.link_title, class: "gfm gfm-commit "} Nam pulvinar sapien eget odio adipiscing at faucibus orci vestibulum.</p>\n"
+      actual = "\n\nLorem ipsum dolor sit amet. #{commit.id} Nam pulvinar sapien eget.\n"
+      expected = project_commit_path(project, commit)
+      markdown(actual).should match(expected)
     end
 
     it "should handle references in headers" do
