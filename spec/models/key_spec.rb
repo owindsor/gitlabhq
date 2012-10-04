@@ -6,6 +6,11 @@ describe Key do
     it { should belong_to(:project) }
   end
 
+  describe "Mass assignment" do
+    it { should_not allow_mass_assignment_of(:project_id) }
+    it { should_not allow_mass_assignment_of(:user_id) }
+  end
+
   describe "Validation" do
     it { should validate_presence_of(:title) }
     it { should validate_presence_of(:key) }
@@ -44,6 +49,18 @@ describe Key do
         create(:key, user: user)
         build(:key, user: user).should_not be_valid
       end
+    end
+  end
+
+  context "validate it is a fingerprintable key" do
+    let(:user) { Factory.create(:user) }
+
+    it "accepts the fingerprintable key" do
+      build(:key, user: user).should be_valid
+    end
+
+    it "rejects the unfingerprintable key" do
+      build(:key_with_a_space_in_the_middle).should_not be_valid
     end
   end
 end
