@@ -14,12 +14,12 @@ describe Event do
     it { should respond_to(:commits) }
   end
 
-  describe "Push event" do 
-    before do 
+  describe "Push event" do
+    before do
       project = Factory :project
       @user = project.owner
 
-      data = { 
+      data = {
         before: "0000000000000000000000000000000000000000",
         after: "0220c11b9a3e6c69dc8fd35321254ca9a7b98f7e",
         ref: "refs/heads/master",
@@ -48,5 +48,26 @@ describe Event do
     it { @event.tag?.should be_false }
     it { @event.branch_name.should == "master" }
     it { @event.author.should == @user }
+  end
+
+  describe 'Team events' do
+    let(:user_project) { stub.as_null_object }
+    let(:observer) { UsersProjectObserver.instance }
+
+    before {
+      Event.should_receive :create
+    }
+
+    describe "Joined project team" do
+      it "should create event" do
+        observer.after_create user_project
+      end
+    end
+
+    describe "Left project team" do
+      it "should create event" do
+        observer.after_destroy user_project
+      end
+    end
   end
 end

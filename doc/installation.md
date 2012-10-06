@@ -112,18 +112,20 @@ Generate key:
 
 Clone GitLab's fork of the Gitolite source code:
 
-    cd /home/git
-    sudo -H -u git git clone https://github.com/gitlabhq/gitolite.git /home/git/gitolite
+    sudo -H -u git git clone -b gl-v304 https://github.com/gitlabhq/gitolite.git /home/git/gitolite
 
 Setup:
 
+    cd /home/git
+    sudo -u git -H mkdir bin
     sudo -u git sh -c 'echo -e "PATH=\$PATH:/home/git/bin\nexport PATH" >> /home/git/.profile'
-    sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; /home/git/gitolite/src/gl-system-install"
+    sudo -u git sh -c 'gitolite/install -ln /home/git/bin'
+
     sudo cp /home/gitlab/.ssh/id_rsa.pub /home/git/gitlab.pub
     sudo chmod 0444 /home/git/gitlab.pub
 
-    sudo -u git -H sed -i 's/0077/0007/g' /home/git/share/gitolite/conf/example.gitolite.rc
-    sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; gl-setup -q /home/git/gitlab.pub"
+    sudo -u git -H sh -c "PATH=/home/git/bin:$PATH; gitolite setup -pk /home/git/gitlab.pub"
+    sudo -u git -H sed -i 's/0077/0007/g' /home/git/.gitolite.rc
 
 Permissions:
 
@@ -149,7 +151,14 @@ and ensure you have followed all of the above steps carefully.
     sudo pip install pygments
     sudo gem install bundler
     cd /home/gitlab
+
+    # Get gitlab code. Use this for stable setup
     sudo -H -u gitlab git clone -b stable https://github.com/gitlabhq/gitlabhq.git gitlab
+
+    # Skip this for stable setup.
+    # Master branch (recent changes, less stable)
+    sudo -H -u gitlab git clone -b master https://github.com/gitlabhq/gitlabhq.git gitlab
+
     cd gitlab
 
     # Rename config files
@@ -189,8 +198,8 @@ and ensure you have followed all of the above steps carefully.
 
 #### Setup GitLab hooks
 
-    sudo cp ./lib/hooks/post-receive /home/git/share/gitolite/hooks/common/post-receive
-    sudo chown git:git /home/git/share/gitolite/hooks/common/post-receive
+    sudo cp ./lib/hooks/post-receive /home/git/.gitolite/hooks/common/post-receive
+    sudo chown git:git /home/git/.gitolite/hooks/common/post-receive
 
 #### Check application status
 
@@ -241,6 +250,14 @@ You can login via web using admin generated with setup:
     # if you run this as root /home/gitlab/gitlab/tmp/pids/resque_worker.pid will be owned by root
     # causing the resque worker not to start via init script on next boot/service restart
 
+## Customizing Resque's Redis connection
+
+If you'd like Resque to connect to a Redis server on a non-standard port or on
+a different host, you can configure its connection string in the
+**config/resque.yml** file:
+
+    production: redis.example.com:6379
+
 **Ok - we have a working application now. **
 **But keep going - there are some things that should be done **
 
@@ -249,7 +266,7 @@ You can login via web using admin generated with setup:
 ## 1. Unicorn
 
     cd /home/gitlab/gitlab
-    sudo -u gitlab cp config/unicorn.rb.orig config/unicorn.rb
+    sudo -u gitlab cp config/unicorn.rb.example config/unicorn.rb
     sudo -u gitlab bundle exec unicorn_rails -c config/unicorn.rb -E production -D
 
 ## 2. Nginx
@@ -265,7 +282,6 @@ You can login via web using admin generated with setup:
     # to the IP address and fully-qualified domain name
     # of the host serving GitLab.
     sudo vim /etc/nginx/sites-enabled/gitlab
-
 
     # Restart nginx:
     /etc/init.d/nginx restart

@@ -11,6 +11,8 @@ module Gitlab
       # Example Request:
       #   GET /projects/:id/milestones
       get ":id/milestones" do
+        authorize! :read_milestone, user_project
+
         present paginate(user_project.milestones), with: Entities::Milestone
       end
 
@@ -22,6 +24,8 @@ module Gitlab
       # Example Request:
       #   GET /projects/:id/milestones/:milestone_id
       get ":id/milestones/:milestone_id" do
+        authorize! :read_milestone, user_project
+
         @milestone = user_project.milestones.find(params[:milestone_id])
         present @milestone, with: Entities::Milestone
       end
@@ -36,16 +40,14 @@ module Gitlab
       # Example Request:
       #   POST /projects/:id/milestones
       post ":id/milestones" do
-        @milestone = user_project.milestones.new(
-          title: params[:title],
-          description: params[:description],
-          due_date: params[:due_date]
-        )
+        authorize! :admin_milestone, user_project
 
+        attrs = attributes_for_keys [:title, :description, :due_date]
+        @milestone = user_project.milestones.new attrs
         if @milestone.save
           present @milestone, with: Entities::Milestone
         else
-          error!({'message' => '404 Not found'}, 404)
+          not_found!
         end
       end
 
@@ -61,18 +63,14 @@ module Gitlab
       # Example Request:
       #   PUT /projects/:id/milestones/:milestone_id
       put ":id/milestones/:milestone_id" do
-        @milestone = user_project.milestones.find(params[:milestone_id])
-        parameters = {
-          title: (params[:title] || @milestone.title),
-          description: (params[:description] || @milestone.description),
-          due_date: (params[:due_date] || @milestone.due_date),
-          closed: (params[:closed] || @milestone.closed)
-        }
+        authorize! :admin_milestone, user_project
 
-        if @milestone.update_attributes(parameters)
+        @milestone = user_project.milestones.find(params[:milestone_id])
+        attrs = attributes_for_keys [:title, :description, :due_date, :closed]
+        if @milestone.update_attributes attrs
           present @milestone, with: Entities::Milestone
         else
-          error!({'message' => '404 Not found'}, 404)
+          not_found!
         end
       end
     end

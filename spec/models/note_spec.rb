@@ -7,6 +7,11 @@ describe Note do
     it { should belong_to(:author).class_name('User') }
   end
 
+  describe "Mass assignment" do
+    it { should_not allow_mass_assignment_of(:author) }
+    it { should_not allow_mass_assignment_of(:author_id) }
+  end
+
   describe "Validation" do
     it { should validate_presence_of(:note) }
     it { should validate_presence_of(:project) }
@@ -24,6 +29,13 @@ describe Note do
     it "recognizes a neutral note" do
       note = Factory(:note, note: "This is not a +1 note")
       note.should_not be_upvote
+      note.should_not be_downvote
+    end
+
+    it "recognizes a neutral emoji note" do
+      note = build(:note, note: "I would :+1: this, but I don't want to")
+      note.should_not be_upvote
+      note.should_not be_downvote
     end
 
     it "recognizes a +1 note" do
@@ -31,9 +43,19 @@ describe Note do
       note.should be_upvote
     end
 
-    it "recognizes a -1 note as no vote" do
+    it "recognizes a +1 emoji as a vote" do
+      note = build(:note, note: ":+1: for this")
+      note.should be_upvote
+    end
+
+    it "recognizes a -1 note" do
       note = Factory(:note, note: "-1 for this")
-      note.should_not be_upvote
+      note.should be_downvote
+    end
+
+    it "recognizes a -1 emoji as a vote" do
+      note = build(:note, note: ":-1: for this")
+      note.should be_downvote
     end
   end
 

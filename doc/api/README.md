@@ -1,6 +1,6 @@
 # GitLab API
 
-All API requests require authentication. You need to pass a `private_token` parameter to authenticate. You can find or reset your private token in your profile.
+All API requests require authentication. You need to pass a `private_token` parameter by url or header. You can find or reset your private token in your profile.
 
 If no, or an invalid, `private_token` is provided then an error message will be returned with status code 401:
 
@@ -30,7 +30,9 @@ When listing resources you can pass the following parameters:
 ## Contents
 
 + [Users](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/users.md)
++ [Session](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/session.md)
 + [Projects](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/projects.md)
 + [Snippets](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/snippets.md)
++ [Repositories](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/repositories.md)
 + [Issues](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/issues.md)
 + [Milestones](https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/milestones.md)

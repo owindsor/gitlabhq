@@ -145,6 +145,19 @@ span.update-author {
 .label {
   background-color: #474D57;
 
+  &.label-tag {
+    background: none;
+    border: none;
+    padding:4px 6px;
+    color:#444;
+    text-shadow:0 0 1px #fff;
+
+    &.grouped {
+      float: left;
+      margin-right: 6px;
+      padding: 6px;
+    }
+  }
   &.label-issue {
     background-color: #eee;
     border: 1px solid #ccc;
@@ -158,26 +171,17 @@ span.update-author {
       padding: 6px;
     }
   }
-}
 
-.event_label {
-  @extend .label;
-  background-color: #999;
-
-  &.pushed {
-    background-color: #4A97BD;
+  &.label-success {
+    background-color: #8D8;
+    color: #333;
+    text-shadow: 0 1px 1px white;
   }
 
-  &.opened {
-    background-color: #469847;
-  }
-
-  &.closed {
-    background-color: #B94A48;
-  }
-
-  &.merged {
-    background-color: #2A2;
+  &.label-error {
+    background-color: #D88;
+    color: #333;
+    text-shadow: 0 1px 1px white;
   }
 }
 
@@ -321,41 +325,6 @@ p.time {
   border:2px solid #ddd;
 }
 
-.event_feed {
-  min-height:40px;
-  border-bottom:1px solid #ddd;
-  .avatar {
-    width:32px;
-  }
-  .event_icon {
-    float:right;
-    margin-right:2px;
-    img {
-      width:20px;
-    }
-  }
-  ul {
-    margin-left:50px;
-    margin-bottom:5px;
-    .avatar {
-      width:24px;
-    }
-  }
-
-  padding: 15px 5px;
-  &:last-child { border:none }
-  .wll:hover { background:none }
-
-  .event_commits {
-    margin-top: 5px;
-
-    li.commit {
-      background: transparent;
-      padding:5px;
-      border:none;
-    }
-  }
-}
 
 .ico {
   background: url("images.png") no-repeat -85px -77px;
@@ -406,13 +375,48 @@ p.time {
   }
 }
 
-.upvotes {
-  font-size: 14px;
-  font-weight: bold;
-  color: #468847;
-  text-align: right;
-  padding: 4px;
-  margin: 2px;
+.votes {
+  font-size: 13px;
+  line-height: 15px;
+  .progress {
+    height: 4px;
+    margin: 0;
+    .bar {
+      float: left;
+      height: 100%;
+    }
+    .bar-success {
+      background-color: #468847;
+      @include bg-gradient(#62C462, #51A351);
+    }
+    .bar-danger {
+      background-color: #B94A48;
+      @include bg-gradient(#EE5F5B, #BD362F);
+    }
+  }
+  .upvotes {
+    display: inline-block;
+    color: #468847;
+  }
+  .downvotes {
+    display: inline-block;
+    color: #B94A48;
+  }
+}
+.votes-block {
+  margin: 14px 6px 6px 0;
+  .downvotes {
+    float: right;
+  }
+}
+.votes-inline {
+  display: inline-block;
+  margin: 0 8px;
+  .progress {
+    display: inline-block;
+    padding: 0 0 2px;
+    width: 45px;
+  }
 }
 
 /* Fix for readme code (stopped it from being yellow) */
@@ -570,22 +574,6 @@ li.note {
   background:#fff;
 }
 
-/**
- * Push event widget
- *
- */
-.event_lp {
-  @extend .ui-box;
-  color:#777;
-  margin-bottom:20px;
-  padding:8px;
-  @include border-radius(4px);
-  min-height:22px;
-
-  .avatar {
-    width:24px;
-  }
-}
 
 .supp_diff_link,
 .mr_show_all_commits {
@@ -616,7 +604,7 @@ li.note {
     margin-right:40px;
 
     .prev {
-      @extend .borders;
+      @extend .thumbnail;
       height:120px;
       width:175px;
       margin-bottom:10px;
@@ -645,3 +633,32 @@ li.note {
   text-align:center;
   margin-bottom:10px;
 }
+
+.oauth_select_holder {
+  padding:20px;
+  img {
+    padding:5px;
+    margin-right:10px;
+  }
+  .active {
+    img {
+      border:1px solid #ccc;
+      background:$hover;
+      @include border-radius(5px);
+    }
+  }
+}
+
+.btn-build-token {
+  float: left;
+  padding: 6px 20px;
+  margin-right: 12px;
+}
+
+.gitlab-promo {
+  a {
+    color:#aaa;
+    margin-right: 30px;
+  }
+}
+
